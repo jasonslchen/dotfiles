@@ -8,7 +8,7 @@ then
 fi
 
 # Change the default shell to zsh
-chsh -s $(which zsh)
+sudo chsh -s $(which zsh)
 
 # Source the .aliases file
 echo 'source ~/.aliases' >> ~/.zshrc
