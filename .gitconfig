@@ -1,0 +1,16 @@
+[alias]
+
+# rebase interactive 'rebase -i'
+rbi = rebase -i
+
+# commit -m 
+cm = commit -m 
+
+# checkout new branch, checkout -b
+cb = checkout -b
+
+# checkout, checkout
+c = checkout
+
+# cherry-pick, cherry-pick 
+cp = cherry-pick
