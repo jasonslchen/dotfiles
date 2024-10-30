@@ -1,5 +1,5 @@
 #!/bin/sh
 
 # swap to zsh
-sudo chsh -s $(which zsh)
+sudo chsh -s /bin/zsh $(whoami)
 echo $SHELL
