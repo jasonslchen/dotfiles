@@ -1,1 +1,1 @@
-sudo chsh -s $(which zsh)
+sudo chsh -s /bin/zsh $(whoami)
