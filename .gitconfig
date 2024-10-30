@@ -1,16 +1,24 @@
 [alias]
 
-# rebase interactive 'rebase -i'
-rbi = rebase -i
+    # rebase interactive 'rebase -i'
+    rbi = rebase -i
 
-# commit -m 
-cm = commit -m 
+    # commit -m 
+    cm = commit -m 
 
-# checkout new branch, checkout -b
-chb = checkout -b
+    # checkout new branch, checkout -b
+    chb = checkout -b
 
-# checkout, checkout
-ch = checkout
+    # checkout, checkout
+    ch = checkout
 
-# cherry-pick, cherry-pick 
-cp = cherry-pick
+    # cherry-pick, cherry-pick 
+    cp = cherry-pick
+
+[merge]
+	conflictstyle = diff3
+[github]
+	user = jasonslchen
+
+[pull]
+	rebase = true

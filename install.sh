@@ -16,10 +16,12 @@ if [ ! -f ~/.aliases ]; then
 fi
 echo 'source ~/.aliases' >> ~/.zshrc
 
-# Reload the zsh configuration if we're already in zsh, otherwise prompt user to restart shell
-if [ "$SHELL" = "$(which zsh)" ]; then
-    source ~/.zshrc
+# Check if inside a Codespace
+if [ "$CODESPACES" = "true" ]; then
+    # If running in Codespaces, source .zshrc without requiring restart
+    exec zsh -l
 else
+    # Otherwise, prompt user to restart shell
     echo "Please restart your terminal or run 'exec zsh' to apply changes."
 fi
 
