@@ -15,6 +15,9 @@
     # cherry-pick, cherry-pick 
     cp = cherry-pick
 
+    # add
+    a = add
+
 [merge]
 	conflictstyle = diff3
 [github]
