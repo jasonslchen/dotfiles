@@ -7,10 +7,10 @@ rbi = rebase -i
 cm = commit -m 
 
 # checkout new branch, checkout -b
-cb = checkout -b
+chb = checkout -b
 
 # checkout, checkout
-c = checkout
+ch = checkout
 
 # cherry-pick, cherry-pick 
 cp = cherry-pick
