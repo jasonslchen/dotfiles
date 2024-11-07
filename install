@@ -1,6 +1,5 @@
 #!/bin/sh
 
 # swap to zsh
-sudo apt-get install --yes zsh
 sudo chsh -s /bin/zsh $(whoami)
 echo $SHELL
