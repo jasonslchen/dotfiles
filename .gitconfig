@@ -16,10 +16,12 @@
     cp = cherry-pick
 
     # add
-    a = add
+    aa = add .
+
 
 [merge]
 	conflictstyle = diff3
 [github]
 	user = jasonslchen
+    email = jasonslchen@github.com
 

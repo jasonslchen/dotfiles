@@ -1,18 +1,20 @@
-#!/bin/sh
+#!/bin/zsh
 
 
 # ZSH {
 # Change to zsh
-is_interactive && {
-	if [[ "$SHELL" != "$(which zsh)" ]]; then
+if [[ "$SHELL" != "$(which zsh)" ]]; then
 		sudo chsh -s $(which zsh)
-	fi
-}
+fi
 
 
 function link_files() {
-  # Git link
-  rm -f ~/.gitconfig
-  ln -s $(pwd)/.gitconfig ~/.gitconfig
+  if [[ ! $(pwd) -ef $HOME ]]; then
+    # Git link
+    rm -f ~/.gitconfig
+    ln -s $(pwd)/.gitconfig ~/.gitconfig
+  fi
 }
+
+link_files
 
