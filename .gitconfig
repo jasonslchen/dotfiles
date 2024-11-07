@@ -23,5 +23,3 @@
 [github]
 	user = jasonslchen
 
-[pull]
-	rebase = true
