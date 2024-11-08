@@ -24,6 +24,9 @@
     # add .
     aa = add .
 
+    # add --patch
+    ap = add --patch
+
 
 
 
