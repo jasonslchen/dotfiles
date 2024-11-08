@@ -27,6 +27,12 @@
     # add --patch
     ap = add --patch
 
+    # diff
+    d = diff
+
+    # diff --staged
+    df = diff --staged
+
 
 
 
