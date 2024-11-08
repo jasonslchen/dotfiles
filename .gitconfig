@@ -3,6 +3,12 @@
     # rebase interactive 'rebase -i'
     rbi = rebase -i
 
+    # rebase
+    rb = rebase
+    
+    # pull 
+    p = pull
+
     # commit -m 
     cm = commit -m 
 
@@ -15,8 +21,10 @@
     # cherry-pick, cherry-pick 
     cp = cherry-pick
 
-    # add
+    # add .
     aa = add .
+
+
 
 
 [merge]
