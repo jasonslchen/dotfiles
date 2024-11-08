@@ -36,6 +36,8 @@ link_files
 echo "Finish symlinking dotfiles"
 
 # make directly highlighting readable - needs to be after zshrc line
+# colors: https://askubuntu.com/questions/466198/how-do-i-change-the-color-for-directories-with-ls-in-the-console
+# configuring colors: https://www.bigsoft.co.uk/blog/2008/04/11/configuring-ls_colors
 echo "" >> ~/.zshrc
 echo "# remove ls and directory completion highlight color" >> ~/.zshrc
 echo "_ls_colors=':ow=01;33'" >> ~/.zshrc
