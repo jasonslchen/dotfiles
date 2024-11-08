@@ -1,14 +1,11 @@
 #!/bin/zsh
 
-
 zshrc() {
-    echo "==========================================================="
-    echo "             link my zshrc                                  "
-    echo "-----------------------------------------------------------"
+    echo "Linking zshrc"
     cat .zshrc > $HOME/.zshrc
 }
 
-# change time zone
+# change time zone to match LA local time
 sudo ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
 sudo dpkg-reconfigure --frontend noninteractive tzdata
 
@@ -19,9 +16,6 @@ zshrc
 if [[ "$SHELL" != "$(which zsh)" ]]; then
 		sudo chsh -s $(which zsh)
 fi
-
-# ln -sf "$(pwd)/.zshrc" "~/.zshrc"
-
 
 function link_files() {
   if [[ ! $(pwd) -ef $HOME ]]; then
