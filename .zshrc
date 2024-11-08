@@ -109,3 +109,9 @@ alias start-actions='echo Actions is no longer part of the default dev container
 alias toggle-four-nines='echo Actions is no longer part of the default dev container, launch the Actions-specific configuration. See https://gh.io/AAmjooh'
 alias ff='bin/toggle-feature-flag'
 alias memex='npm run -w @github-ui/memex'
+
+
+# remove highlighting when navigating file system readable. i.e. highlighting on text when usingi `ls`
+# _ls_colors=":ow=01;33" 
+# zstyle ':completion:*:default' list-colors "${(s.:.)_ls_colors}"
+# LS_COLORS+=$_ls_colors
