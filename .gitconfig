@@ -9,6 +9,9 @@
     # pull 
     p = pull
 
+    # git pull --rebase origin master
+    up = pull --rebase origin master
+
     # commit -m 
     cm = commit -m 
 
