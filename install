@@ -16,5 +16,11 @@ function link_files() {
   fi
 }
 
+function setup_zsh() {
+  ln -sf "$(pwd)/.zshrc" "~/.zshrc"
+}
+
+echo "Symlinking dotfiles"
 link_files
+echo "Finish symlinking dotfiles"
 
