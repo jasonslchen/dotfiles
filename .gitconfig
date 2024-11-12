@@ -8,8 +8,10 @@
 
     # rebase --continue
     rbc = rebase --continue
+    
     # rebase --abort
     rba = rebase --abort
+    
     # git reset --soft HEAD~1
     sr = reset --soft HEAD~1
     
