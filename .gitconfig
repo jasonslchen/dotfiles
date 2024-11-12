@@ -34,8 +34,8 @@
     # cherry-pick, cherry-pick 
     cp = cherry-pick
 
-    # add .
-    aa = add .
+    # add --all
+    aa = add --all
 
     # add --patch
     ap = add --patch
