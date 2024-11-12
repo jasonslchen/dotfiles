@@ -7,10 +7,13 @@
     rb = rebase
     
     # pull 
-    p = pull
+    down = pull origin master
 
     # git pull --rebase origin master
     up = pull --rebase origin master
+
+    # push --force
+    pf = push --force
 
     # commit -m 
     cm = commit -m 
