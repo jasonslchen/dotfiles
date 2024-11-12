@@ -112,3 +112,4 @@ alias start-actions='echo Actions is no longer part of the default dev container
 alias toggle-four-nines='echo Actions is no longer part of the default dev container, launch the Actions-specific configuration. See https://gh.io/AAmjooh'
 alias ff='bin/toggle-feature-flag'
 alias memex='npm run -w @github-ui/memex'
+alias lint='cd ~/workspaces/github && nx run @github-ui/marketplace-react:tsc'
