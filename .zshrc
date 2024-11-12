@@ -10,6 +10,9 @@ export ZSH=$HOME/.oh-my-zsh
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="crunch"
 
+# set git editor to vim
+export GIT_EDITOR=vim
+
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME="devcontainers"
 # a theme from this variable instead of looking in $ZSH/themes/
