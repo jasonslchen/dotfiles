@@ -1,5 +1,7 @@
 [alias]
 
+    # status
+    s = status
     # rebase interactive 'rebase -i'
     rbi = rebase -i
 
@@ -48,7 +50,7 @@
     d = diff
 
     # diff --staged
-    df = diff --staged
+    ds = diff --staged
 
 
     
