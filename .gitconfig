@@ -18,10 +18,10 @@
     main = !git symbolic-ref refs/remotes/origin/HEAD | cut -d'/' -f4
 
     # pull 
-    down = !'git pull origin $(git main)'
+    down = !"git pull origin $(git main)"
 
     # git pull --rebase origin/master
-    up = !'git pull --rebase origin $(git main)'
+    up = !"git pull --rebase origin $(git main)"
 
     # push --force
     pf = push --force
