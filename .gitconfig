@@ -47,13 +47,13 @@
 
     # diff --staged
     df = diff --staged
+    
+    [push]
+        autoSetupRemote = true
 
-
-
-
-[merge]
+    [merge]
 	conflictstyle = diff3
-[github]
+    [github]
 	user = jasonslchen
-    email = jasonslchen@github.com
+        email = jasonslchen@github.com
 
