@@ -16,10 +16,10 @@
     sr = reset --soft HEAD~1
     
     # pull 
-    down = pull origin master
+    down = pull origin $(git main)
 
     # git pull --rebase origin master
-    up = pull --rebase origin master
+    up = pull --rebase origin $(git main)
 
     # push --force
     pf = push --force
@@ -47,6 +47,9 @@
 
     # diff --staged
     df = diff --staged
+
+    main = !git symbolic-ref refs/remotes/origin/HEAD | cut -d'/' -f4
+
     
     [push]
         autoSetupRemote = true
