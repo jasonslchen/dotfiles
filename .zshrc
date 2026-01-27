@@ -113,3 +113,5 @@ alias toggle-four-nines='echo Actions is no longer part of the default dev conta
 alias ff='bin/toggle-feature-flag'
 alias memex='npm run -w @github-ui/memex'
 alias lint='cd ~/workspaces/github && nx run @github-ui/marketplace-react:tsc'
+
+export PATH="$PATH:$HOME/go/bin"
