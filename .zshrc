@@ -116,3 +116,4 @@ alias lint='cd ~/workspaces/github && nx run @github-ui/marketplace-react:tsc'
 
 export PATH="$PATH:$HOME/go/bin"
 alias ci='code-insiders'
+alias ci-copilot-api='ONEP_SECRET_KEY="1" ONEP_PASSWORD="123" ci github/copilot-api'
