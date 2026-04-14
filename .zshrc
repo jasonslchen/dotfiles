@@ -115,3 +115,4 @@ alias memex='npm run -w @github-ui/memex'
 alias lint='cd ~/workspaces/github && nx run @github-ui/marketplace-react:tsc'
 
 export PATH="$PATH:$HOME/go/bin"
+alias ci='code-insiders'

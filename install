@@ -5,9 +5,11 @@ zshrc() {
     cat .zshrc > $HOME/.zshrc
 }
 
-# change time zone to match LA local time
-sudo ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
-sudo dpkg-reconfigure --frontend noninteractive tzdata
+# change time zone to match LA local time (Linux only)
+if [[ "$(uname)" != "Darwin" ]]; then
+    sudo ln -fs /usr/share/zoneinfo/America/Los_Angeles /etc/localtime
+    sudo dpkg-reconfigure --frontend noninteractive tzdata
+fi
 
 zshrc
 
