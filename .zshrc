@@ -117,3 +117,7 @@ alias lint='cd ~/workspaces/github && nx run @github-ui/marketplace-react:tsc'
 export PATH="$PATH:$HOME/go/bin"
 alias ci='code-insiders'
 alias capi='ONEP_SECRET_KEY="1" ONEP_PASSWORD="123" ci'
+export GOPROXY=https://goproxy.githubapp.com/mod,https://proxy.golang.org/,direct
+export GOPRIVATE=
+export GONOPROXY=
+export GONOSUMDB='github.com/github/*'
