@@ -68,6 +68,8 @@
 	process = git-lfs filter-process
 	required = true
 	clean = git-lfs clean -- %f
+[github]
+    user = jasonslchen
 [user]
 	name = Jason Chen
 	email = jasonslchen@github.com
