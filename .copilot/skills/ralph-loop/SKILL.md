@@ -142,6 +142,57 @@ For each task, on every turn:
 The next prompt — even an empty one like "continue" — should be enough to
 restart the loop because everything you need is on disk.
 
+## Choosing the right model per iteration
+
+The ralph loop runs many iterations. Using a premium model for every step
+is expensive and slow; using a fast model for hard reasoning ships bugs.
+Match the model to the *kind* of work this iteration is doing.
+
+Three categories of work, three model tiers:
+
+| Iteration kind                          | Tier      | Examples                                                     |
+|----------------------------------------|-----------|--------------------------------------------------------------|
+| **Look stuff up / mechanical**         | fast      | reading files, grepping, listing symbols, running tests/builds, summarizing logs |
+| **Do the thing**                       | standard  | typical edits, implementing a planned change, writing tests, fixing a known failure |
+| **Decide what to do / hard reasoning** | premium   | initial planning, redesigns mid-task, debugging a non-obvious failure, rubber-duck reviews of a non-trivial plan |
+
+In Copilot CLI you don't switch the main model mid-session, but you *can*
+route per-iteration work through sub-agents (`task` tool) with an explicit
+`model` override:
+
+- **fast tier** → delegate research/exploration to the `explore` agent
+  (defaults to Haiku); delegate verbose build/test runs to the `task`
+  agent (also Haiku). Keeps the main context clean and avoids burning
+  premium tokens on `cat` and `npm test`.
+- **standard tier** → just do the work in the main loop. This is the
+  default and usually right.
+- **premium tier** → call `rubber-duck` (defaults to Sonnet, override to
+  an Opus/GPT-5.5 variant for genuinely architectural calls) before
+  committing to a plan, after writing tests, or when stuck. For deep
+  debugging, you can launch a `general-purpose` agent with an explicit
+  premium `model` override.
+
+Heuristics:
+
+- **Plan once, premium.** The first iteration that produces `plan.md` is
+  high-leverage — bias toward a stronger model (or follow up immediately
+  with `rubber-duck`). Cheap planning is the most expensive kind of
+  cheap.
+- **Execute many, standard.** The bulk of the loop should be standard
+  tier. If you find yourself constantly escalating, the plan is wrong —
+  re-plan, don't keep throwing premium tokens at it.
+- **Verify cheap.** Running tests, tailing logs, listing files: always
+  fast tier via a sub-agent. Never read 5000 lines of build output into
+  the main context.
+- **Escalate on surprise, not on difficulty.** "This is hard" is not a
+  reason to escalate; "this failed in a way the plan didn't predict" is.
+- **Don't downshift mid-decision.** If you're in the middle of a design
+  call, finish it at the current tier; switching models mid-thought
+  loses context.
+
+Record any deliberate model choice in `notes.md` so the next iteration
+knows why a given step was routed where it was.
+
 ## Anti-patterns
 
 - **Holding state in the conversation.** If a fact only exists in chat
@@ -159,6 +210,9 @@ restart the loop because everything you need is on disk.
 - **Forgetting the user.** If you hit a real ambiguity, mark the todo
   `[!]`, write the question into "Open questions" in `plan.md`, and ask
   via `ask_user`. Don't guess silently.
+- **One model fits all.** The loop has phases of very different cost
+  profiles — research, execution, deciding. Route them accordingly
+  instead of paying premium prices for `ls`.
 - **Leaving ralph files behind.** Ralph state is temporary scratch space.
   Always delete the temp dir / `.ralph/` folder on termination. Never
   carry state from one task into an unrelated next task.
