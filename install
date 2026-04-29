@@ -31,6 +31,51 @@ echo "Symlinking dotfiles"
 link_files
 echo "Finish symlinking dotfiles"
 
+# Skills (Copilot CLI / Claude Code)
+# Returns 0 (available) for skills that should always link;
+# returns non-zero to skip a skill that depends on a local-only tool.
+is_skill_available() {
+    case "$1" in
+        codeflow)
+            [[ -x "$HOME/projects/codeflow/.venv/bin/codeflow" ]]
+            ;;
+        *)
+            return 0
+            ;;
+    esac
+}
+
+link_skill_dir() {
+    emulate -L zsh
+    setopt local_options null_glob
+    local src="$1" dst="$2"
+    [[ -d "$src" ]] || return 0
+    mkdir -p "$dst"
+    local skill_path name target backup
+    for skill_path in "$src"/*/; do
+        name=$(basename "$skill_path")
+        if ! is_skill_available "$name"; then
+            echo "  skip $name (local-only skill not available on this machine)"
+            continue
+        fi
+        target="$dst/$name"
+        if [[ -L "$target" ]]; then
+            rm "$target"
+        elif [[ -e "$target" ]]; then
+            backup="$target.bak.$(date +%Y%m%d%H%M%S)"
+            echo "  backing up existing $target -> $backup"
+            mv "$target" "$backup"
+        fi
+        ln -s "${skill_path%/}" "$target"
+        echo "  linked $name -> $target"
+    done
+}
+
+echo "Linking agent skills"
+link_skill_dir "$(pwd)/.copilot/skills" "$HOME/.copilot/skills"
+link_skill_dir "$(pwd)/.claude/skills"  "$HOME/.claude/skills"
+echo "Finish linking agent skills"
+
 # make directly highlighting readable - needs to be after zshrc line
 # colors: https://askubuntu.com/questions/466198/how-do-i-change-the-color-for-directories-with-ls-in-the-console
 # configuring colors: https://www.bigsoft.co.uk/blog/2008/04/11/configuring-ls_colors
