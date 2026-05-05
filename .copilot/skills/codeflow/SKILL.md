@@ -6,11 +6,13 @@ description: >-
     including call graphs, dependency graphs, and execution traces. Also
     use for code exploration: "how does X work", "what calls Y", "trace
     this function", "find symbols matching Z". Codeflow generates diagrams
-    from real static analysis (Python/JS/TS/Go/Java native; others via AI
-    fallback). Triggers: "draw a diagram of...", "render as mermaid",
-    "ASCII chart of this code", "call graph for", "visualize this
-    function", "flowchart this", "how does X work", "what calls Y", "trace
-    this". Prefer this skill over hand-drawing diagrams in markdown.
+    from real static analysis (Python, Go, JavaScript, TypeScript, Java,
+    C#, C, C++, PHP, Rust native; others via AI fallback). Triggers:
+    "draw a diagram of...", "render as mermaid", "ASCII chart of this
+    code", "call graph for", "visualize this function", "flowchart this",
+    "how does X work", "what calls Y", "trace this Java method", "trace
+    this Rust function", "trace this TypeScript", "trace this C#".
+    Prefer this skill over hand-drawing diagrams in markdown.
 user-invocable: true
 ---
 
@@ -24,8 +26,14 @@ Codeflow statically analyzes a codebase and produces:
 
 Output formats: **ASCII** (terminal), **Mermaid** (markdown), **JSON** (programmatic).
 
-Native: **Python, JS, TS, Go, Java**. AI fallback (`--ai-extract`):
-Ruby, Rust, Swift, Kotlin, C/C++, C#, PHP, Scala, Dart, Elixir, etc.
+Native (no AI required) — symbol indexing **and** call-graph tracing:
+
+| Capability                       | Languages                                              |
+|----------------------------------|--------------------------------------------------------|
+| Trace + branch pruning (`--params`) | **Python, Go** (Go FF patterns: LaunchDarkly, OpenFeature, viper, `os.Getenv`) |
+| Trace only (no branch pruning yet)  | **JS, TS, Java, C#, C, C++, PHP, Rust**             |
+
+AI fallback (`--ai-extract`, symbol-only): Ruby, Swift, Kotlin, Scala, Dart, Elixir, etc.
 
 The `codeflow` binary is on `$PATH`. From an agent context with MCP, you
 can also call `codeflow-ask`, `codeflow-trace`, `codeflow-expand_node`,
@@ -79,7 +87,7 @@ multiple formats. Each codeflow invocation costs time and tokens.
 | Drill into a node from a previous trace    | `codeflow expand "<node_id>"`                                |
 | "Find all functions doing X"               | `codeflow search "X"`                                        |
 | "What does file Z import?"                 | `codeflow deps file.py`                                      |
-| "What runs if param=X?" (Python only)      | `codeflow trace file:fn --params '{"X": ...}'`               |
+| "What runs if param=X?" (Python + Go)      | `codeflow trace file:fn --params '{"X": ...}'`               |
 
 Prefer `codeflow ask` when the entrypoint isn't known (it does NL parse →
 search → rank → trace in one step). Prefer `codeflow trace` when you know
@@ -116,11 +124,12 @@ the diagram, and a 1–3 sentence prose summary. **Read the summary first.**
 
 ### `codeflow trace <file>:<function>`
 
-Direct trace from a known entrypoint. Python and Go (`.py`, `.go`). Go
-accepts `file.go:FunctionName` or `file.go:Type.Method`.
+Direct trace from a known entrypoint. Works on all 10 native languages
+(Python, Go, JS, TS, Java, C#, C, C++, PHP, Rust). Method syntax:
+`file.go:Type.Method`, `Foo.java:Class.method`, etc.
 
 Options: `--depth`, `--max-fanout`, `--no-externals`,
-`--params '{"key": value}'` (Python only),
+`--params '{"key": value}'` (**Python + Go only**),
 `--render ascii|tree|table`, `--format mermaid|json`.
 
 ```
@@ -130,8 +139,10 @@ codeflow trace main.go:main --format mermaid
 codeflow trace service/handler.go:Handler.Handle --render ascii
 ```
 
-With `--params` (Python), output shows ✅ taken / ❌ not_taken / ❓
-unknown for each conditional, plus pruned calls.
+With `--params` (Python + Go), output shows ✅ taken / ❌ not_taken / ❓
+unknown for each conditional, plus pruned calls. Go branch pruning
+recognizes feature-flag patterns (LaunchDarkly, OpenFeature, viper,
+`os.Getenv`).
 
 ### `codeflow expand <node_id>`
 
@@ -202,6 +213,6 @@ Format selection (ASCII is the default — see "ASCII-first rendering"):
 
 ## Notes
 
-- Call graph tracing supports **Python and Go**. Other languages get symbol indexing/search only.
-- For Ruby/Rust/Swift/etc., run `codeflow index --ai-extract --enrich` once, then use `search`.
+- Call graph tracing supports **Python, Go, JS, TS, Java, C#, C, C++, PHP, Rust** natively. Branch pruning (`--params`) is currently Python + Go only; the other 8 are deferred.
+- For Ruby/Swift/Kotlin/Scala/Dart/etc., run `codeflow index --ai-extract --enrich` once, then use `search`.
 - If a query returns "needs clarification", surface the closest matches and ask which the user meant.
