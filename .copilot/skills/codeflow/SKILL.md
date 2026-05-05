@@ -41,12 +41,12 @@ static analysis; a hand-drawn diagram is grounded in your context window
 and will lie subtly — missed edges, fabricated calls, dynamic dispatch
 shown as real edges.
 
-| User says…                                | Run                                                |
+| User says…                                | Run (ASCII is the default)                         |
 |-------------------------------------------|----------------------------------------------------|
-| "draw a mermaid diagram of X"             | `codeflow ask "X" --format mermaid`                |
-| "ASCII chart of X" / "visualize X"        | `codeflow ask "X" --render ascii`                  |
-| "call graph for `file.py:fn`"             | `codeflow trace file.py:fn --render ascii`         |
-| "drill into this node"                    | `codeflow expand "<node_id>" --render ascii`       |
+| "draw a diagram of X" / "visualize X"     | `codeflow ask "X"`                                 |
+| "call graph for `file.py:fn`"             | `codeflow trace file.py:fn`                        |
+| "drill into this node"                    | `codeflow expand "<node_id>"`                      |
+| User then asks for mermaid / json         | re-run with `--format mermaid` or `--format json`  |
 
 If the code was already explored earlier in conversation, **re-trace from
 source** — don't reconstruct the diagram from chat memory.
@@ -54,11 +54,26 @@ source** — don't reconstruct the diagram from chat memory.
 The only legitimate reason to hand-draw is when codeflow doesn't support
 the language and `--ai-extract` also failed.
 
+## ASCII-first rendering
+
+**Default to ASCII for every diagram.** Codeflow's CLI and MCP both default
+to `--render ascii` / `output_format="ascii"`. Use that default — it's
+readable in any terminal and the cheapest format to render.
+
+**After showing the ASCII output, ask the user before re-rendering** in
+another format. Suggested phrasing:
+
+> Want this in a different format? I can re-render as mermaid (for
+> embedding in markdown) or json (for programmatic processing).
+
+Re-render only when the user confirms — don't speculatively produce
+multiple formats. Each codeflow invocation costs time and tokens.
+
 ## When to use codeflow
 
 | User wants…                                | Run                                                          |
 |--------------------------------------------|--------------------------------------------------------------|
-| Diagram / chart / flowchart of code        | `codeflow ask "..." --render ascii` or `--format mermaid`    |
+| Diagram / chart / flowchart of code        | `codeflow ask "..."` (ASCII; ask before re-rendering)        |
 | "How does X work?" / "What happens when…?" | `codeflow ask "..."`                                         |
 | "What does function Y call?"               | `codeflow trace file.py:Y`                                   |
 | Drill into a node from a previous trace    | `codeflow expand "<node_id>"`                                |
@@ -80,18 +95,20 @@ Run from project root (or pass `--root`). Codeflow auto-detects via
 Best for exploratory / NL queries.
 
 Options:
-- `--render ascii` — terminal box-drawing (preferred for in-CLI viewing)
+- `--render ascii` — terminal box-drawing (**default**)
 - `--render tree` — Rich tree view
-- `--format mermaid` — for markdown embedding (default when `--render` not set)
+- `--format mermaid` — for markdown embedding (only when the user asks)
+- `--format json` — for programmatic processing (only when the user asks)
 - `--depth N` — max trace depth (default 5)
 - `--params '{"key": value}'` — explicit param constraints (else extracted from query)
 - `--ai` — AI rerank of candidate entrypoints
 - `--no-extract-params` — disable auto param extraction
 
 ```
-codeflow ask "how does payment handle expired cards" --render ascii
-codeflow ask "what happens when user submits POST /api/orders" --format mermaid
+codeflow ask "how does payment handle expired cards"
 codeflow ask "trace check_fraud with amount > 10000"
+# Only after the user confirms they want a different format:
+codeflow ask "what happens when user submits POST /api/orders" --format mermaid
 ```
 
 Output: parsed query, selected entrypoint, branch decisions (if params),
@@ -171,10 +188,10 @@ unsupported languages), `--enrich` (AI symbol descriptions).
   ↺ helper → utils [calls]
 ```
 
-Choose:
-- `--render ascii` for terminal (responsive: horizontal for small graphs, vertical tree `├──` when fanout is wide)
-- `--format mermaid` for markdown
-- `--format json` for programmatic use
+Format selection (ASCII is the default — see "ASCII-first rendering"):
+- `--render ascii` — default; responsive (horizontal for small graphs, vertical tree `├──` when fanout is wide)
+- `--format mermaid` — only when the user asks for markdown-embeddable output
+- `--format json` — only when the user asks for programmatic output
 
 ## Guarantees
 
