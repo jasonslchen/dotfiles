@@ -77,6 +77,35 @@ another format. Suggested phrasing:
 Re-render only when the user confirms — don't speculatively produce
 multiple formats. Each codeflow invocation costs time and tokens.
 
+## AI features require user consent
+
+Some codeflow features send code snippets (function definitions, file
+paths) to an external AI provider (Copilot SDK or GitHub Models) for
+extraction, enrichment, or candidate reranking. Specifically:
+
+- `--ai` / `use_ai=True` — AI candidate reranking on `ask`
+- `--ai-extract` / `ai_extract=True` — AI symbol extraction for languages
+  without a native adapter
+- `--enrich` / `enrich=True` — AI one-line descriptions on indexed symbols
+
+**Always ask the user before invoking codeflow with any of these flags
+from the agent (MCP) surface.** Use this phrasing:
+
+> Codeflow can use AI to [enrich symbols / extract symbols from
+> unsupported languages / rerank candidates]. This sends code snippets
+> to <copilot|github-models>. Proceed?
+
+Wait for explicit user confirmation, then re-invoke with
+`consent_granted=True` (or set `CODEFLOW_AI_CONSENT=1` for a session-wide
+opt-in). Without consent the MCP tool will return
+`{"error": "ai_consent_required", ...}` and refuse to call the provider.
+
+**Direct CLI use bypasses this gate.** When the user themselves types
+`codeflow ask "..." --ai` (or `--ai-extract`, or `--enrich`) at a shell,
+that keystroke is the consent — the CLI runs without prompting so it
+remains scriptable in CI. The consent gate exists only for the MCP path
+where the agent, not the human, is choosing the flag.
+
 ## When to use codeflow
 
 | User wants…                                | Run                                                          |
