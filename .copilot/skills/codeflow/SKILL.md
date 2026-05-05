@@ -11,8 +11,11 @@ description: >-
     "draw a diagram of...", "render as mermaid", "ASCII chart of this
     code", "call graph for", "visualize this function", "flowchart this",
     "how does X work", "what calls Y", "trace this Java method", "trace
-    this Rust function", "trace this TypeScript", "trace this C#".
-    Prefer this skill over hand-drawing diagrams in markdown.
+    this Rust function", "trace this TypeScript", "trace this C#",
+    "follow interface candidates", "expand dynamic dispatch", "trace
+    across RPC", "cross-repo call graph", "multi-repo workspace", "Go
+    feature flag", "branch pruning for Go". Prefer this skill over
+    hand-drawing diagrams in markdown.
 user-invocable: true
 ---
 
@@ -42,12 +45,13 @@ can also call `codeflow-ask`, `codeflow-trace`, `codeflow-expand_node`,
 
 ## Do not hand-draw code diagrams
 
-When the user asks for a diagram, flowchart, mermaid graph, or ASCII chart
-of code, **use codeflow**. Do not render the diagram yourself in markdown
-from your understanding of the code. Codeflow's output is grounded in
-static analysis; a hand-drawn diagram is grounded in your context window
-and will lie subtly — missed edges, fabricated calls, dynamic dispatch
-shown as real edges.
+When the user asks for a diagram, flowchart, mermaid graph, or ASCII
+chart of code, **use codeflow**. A hand-drawn diagram from your context
+window will lie subtly — missed edges, fabricated calls, dynamic
+dispatch shown as real edges. If the code was already explored earlier
+in conversation, **re-trace from source** — don't reconstruct from chat
+memory. The only legitimate reason to hand-draw is when codeflow doesn't
+support the language and `--ai-extract` also failed.
 
 | User says…                                | Run (ASCII is the default)                         |
 |-------------------------------------------|----------------------------------------------------|
@@ -56,55 +60,28 @@ shown as real edges.
 | "drill into this node"                    | `codeflow expand "<node_id>"`                      |
 | User then asks for mermaid / json         | re-run with `--format mermaid` or `--format json`  |
 
-If the code was already explored earlier in conversation, **re-trace from
-source** — don't reconstruct the diagram from chat memory.
-
-The only legitimate reason to hand-draw is when codeflow doesn't support
-the language and `--ai-extract` also failed.
-
 ## ASCII-first rendering
 
-**Default to ASCII for every diagram.** Codeflow's CLI and MCP both default
-to `--render ascii` / `output_format="ascii"`. Use that default — it's
-readable in any terminal and the cheapest format to render.
-
-**After showing the ASCII output, ask the user before re-rendering** in
-another format. Suggested phrasing:
-
-> Want this in a different format? I can re-render as mermaid (for
-> embedding in markdown) or json (for programmatic processing).
-
-Re-render only when the user confirms — don't speculatively produce
-multiple formats. Each codeflow invocation costs time and tokens.
+**Default to ASCII for every diagram** (`--render ascii` /
+`output_format="ascii"`) — readable in any terminal, cheapest to render.
+After showing it, **ask before re-rendering** in another format (mermaid
+for markdown, json for programmatic). Re-render only when confirmed.
 
 ## AI features require user consent
 
-Some codeflow features send code snippets (function definitions, file
-paths) to an external AI provider (Copilot SDK or GitHub Models) for
-extraction, enrichment, or candidate reranking. Specifically:
+Three flags send code snippets to an external AI provider (Copilot SDK
+or GitHub Models): `--ai` / `use_ai=True` (rerank candidates on `ask`),
+`--ai-extract` / `ai_extract=True` (symbol extraction for languages
+without a native adapter), `--enrich` / `enrich=True` (one-line symbol
+descriptions).
 
-- `--ai` / `use_ai=True` — AI candidate reranking on `ask`
-- `--ai-extract` / `ai_extract=True` — AI symbol extraction for languages
-  without a native adapter
-- `--enrich` / `enrich=True` — AI one-line descriptions on indexed symbols
-
-**Always ask the user before invoking codeflow with any of these flags
-from the agent (MCP) surface.** Use this phrasing:
-
-> Codeflow can use AI to [enrich symbols / extract symbols from
-> unsupported languages / rerank candidates]. This sends code snippets
-> to <copilot|github-models>. Proceed?
-
-Wait for explicit user confirmation, then re-invoke with
-`consent_granted=True` (or set `CODEFLOW_AI_CONSENT=1` for a session-wide
-opt-in). Without consent the MCP tool will return
-`{"error": "ai_consent_required", ...}` and refuse to call the provider.
-
-**Direct CLI use bypasses this gate.** When the user themselves types
-`codeflow ask "..." --ai` (or `--ai-extract`, or `--enrich`) at a shell,
-that keystroke is the consent — the CLI runs without prompting so it
-remains scriptable in CI. The consent gate exists only for the MCP path
-where the agent, not the human, is choosing the flag.
+**From the agent (MCP) surface, always ask first** — e.g. *"Codeflow
+can use AI to [rerank/extract/enrich]. This sends code snippets to
+<copilot|github-models>. Proceed?"* — then re-invoke with
+`consent_granted=True` (or set `CODEFLOW_AI_CONSENT=1` for the session).
+Without consent the MCP tool returns `{"error": "ai_consent_required",
+...}`. **Direct CLI use bypasses the gate** — the keystroke is the
+consent, so the CLI stays scriptable in CI.
 
 ## When to use codeflow
 
@@ -159,6 +136,10 @@ Direct trace from a known entrypoint. Works on all 10 native languages
 
 Options: `--depth`, `--max-fanout`, `--no-externals`,
 `--params '{"key": value}'` (**Python + Go only**),
+`--follow-dispatch` (materialize interface/dynamic-dispatch candidates
+as real edges instead of one ❓ node; capped by `--dispatch-max N`,
+default 4, set 0 to disable),
+`--no-rpc` (skip cross-repo RPC bridging from `.codeflow/rpc.yaml`),
 `--render ascii|tree|table`, `--format mermaid|json`.
 
 ```
@@ -210,38 +191,49 @@ Build/refresh the symbol index. Usually unnecessary — other commands
 index lazily. Options: `--force`, `--ai-extract` (enable AI fallback for
 unsupported languages), `--enrich` (AI symbol descriptions).
 
+### `codeflow workspace`
+
+Manage a multi-root workspace declared in `.codeflow/workspace.yaml`.
+Subcommands: `init` (create starter file with current repo as the only
+root), `status` (per-root path + symbol counts), `add <name> <path>`,
+`remove <name>`. Once configured, `trace`/`ask`/`search`/`expand`
+operate across **all** declared roots transparently.
+
+### Cross-repo RPC tracing
+
+If `.codeflow/rpc.yaml` declares service↔stub mappings (Twirp / gRPC /
+protobuf), `trace` and `ask` follow client-stub method calls into the
+server implementation in another workspace root. Cross-boundary edges
+are labeled `[rpc:<protocol>]` (e.g. `[rpc:twirp]`, `[rpc:grpc-go]`).
+Disable per-invocation with `--no-rpc`.
+
+### Cache location
+
+Default cache lives under platformdirs (e.g. `~/Library/Caches/codeflow/`
+on macOS). Override with `--cache-dir <path>`, `--no-cache`, or env
+`CODEFLOW_CACHE_DIR`. Overrides **refuse sensitive system paths**
+(`/`, `/etc`, `/var`, …) and warn on world-writable locations. When the
+cache lands inside a git repo, codeflow auto-writes `.codeflow/.gitignore`
+so cache files are never committed.
+
 ## Rendering
 
-```
-┌───────────────┐
-│process_payment│
-│payments.py:42 │
-└───────────────┘
-        │
- ┌──────┴────────┐
- ▼               ▼
-┌─────────┐  ┌─────────┐
-│validate │  │charge   │
-└─────────┘  └─────────┘
-
-── Cross-references ──
-  ↺ helper → utils [calls]
-```
-
-Format selection (ASCII is the default — see "ASCII-first rendering"):
-- `--render ascii` — default; responsive (horizontal for small graphs, vertical tree `├──` when fanout is wide)
-- `--format mermaid` — only when the user asks for markdown-embeddable output
-- `--format json` — only when the user asks for programmatic output
+ASCII is the default (`--render ascii`) — responsive: horizontal box-
+drawing for small graphs, vertical tree (`├──`) when fanout is wide;
+cross-references appear under a `── Cross-references ──` footer.
+Use `--format mermaid` for markdown-embeddable output and `--format
+json` for programmatic processing — both only when the user asks.
 
 ## Guarantees
 
 - **Static-grounded.** Names appear literally in source; AI (`--ai`) is opt-in for ranking only, never symbol invention.
-- **Unresolved calls are explicit.** Dynamic dispatch and missing definitions emit `❓ <unresolved>` nodes with `metadata.reason` and `metadata.candidates` — never silently dropped.
-- **Caches per-file** in `.codeflow/segments/` (gitignore it).
-- **Branch tracing is constrained.** Boolean checks, comparisons, `is None`, `and`/`or`/`not`. Unknown branches are explicit (❓), never guessed.
+- **Unresolved calls are explicit.** Dynamic dispatch and missing definitions emit `❓ <unresolved>` nodes with `metadata.reason` and `metadata.candidates` — never silently dropped. Use `--follow-dispatch` to materialize candidates instead.
+- **Truncation is surfaced.** When `--max-fanout` drops callees, the prose summary lists the dropped child names so you know what to rerun with a higher cap. Truncated dispatch candidates are surfaced the same way.
+- **Path-contained.** Paths outside the project root are rejected; symlinks that escape the source root are skipped with a stderr warning. Branch tracing covers boolean checks, comparisons, `is None`, `and`/`or`/`not` — unknown branches stay ❓, never guessed.
+- **Caches per-file** in platformdirs by default (or `--cache-dir` / `CODEFLOW_CACHE_DIR`); `.codeflow/.gitignore` is auto-written when the cache lands in a git repo.
 
 ## Notes
 
-- Call graph tracing supports **Python, Go, JS, TS, Java, C#, C, C++, PHP, Rust** natively. Branch pruning (`--params`) is currently Python + Go only; the other 8 are deferred.
+- Call graph tracing supports **Python, Go, JS, TS, Java, C#, C, C++, PHP, Rust** natively. Branch pruning (`--params`) is Python + Go only.
 - For Ruby/Swift/Kotlin/Scala/Dart/etc., run `codeflow index --ai-extract --enrich` once, then use `search`.
 - If a query returns "needs clarification", surface the closest matches and ask which the user meant.
