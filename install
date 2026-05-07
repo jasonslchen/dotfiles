@@ -76,6 +76,25 @@ link_skill_dir "$(pwd)/.copilot/skills" "$HOME/.copilot/skills"
 link_skill_dir "$(pwd)/.claude/skills"  "$HOME/.claude/skills"
 echo "Finish linking agent skills"
 
+link_file() {
+    local src="$1" dst="$2"
+    [[ -e "$src" ]] || return 0
+    mkdir -p "$(dirname "$dst")"
+    if [[ -L "$dst" ]]; then
+        rm "$dst"
+    elif [[ -e "$dst" ]]; then
+        local backup="$dst.bak.$(date +%Y%m%d%H%M%S)"
+        echo "  backing up existing $dst -> $backup"
+        mv "$dst" "$backup"
+    fi
+    ln -s "$src" "$dst"
+    echo "  linked $src -> $dst"
+}
+
+echo "Linking agent instructions"
+link_file "$(pwd)/.copilot/copilot-instructions.md" "$HOME/.copilot/copilot-instructions.md"
+echo "Finish linking agent instructions"
+
 # make directly highlighting readable - needs to be after zshrc line
 # colors: https://askubuntu.com/questions/466198/how-do-i-change-the-color-for-directories-with-ls-in-the-console
 # configuring colors: https://www.bigsoft.co.uk/blog/2008/04/11/configuring-ls_colors
