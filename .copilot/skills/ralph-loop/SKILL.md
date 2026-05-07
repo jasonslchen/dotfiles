@@ -159,6 +159,22 @@ Examples worth recording:
 Do **not** record story-specific details, debug notes, or anything
 already in plan.md.
 
+## Patterns: write to AGENTS.md every iteration
+
+**Every iteration that modifies code MUST check whether a reusable
+codebase pattern was discovered.** Before stopping the turn, ask: "Did
+I learn something a future agent would benefit from?" If yes, append a
+one-line bullet to the nearest existing `AGENTS.md` (or create one in
+the directory of the most-edited file). Patterns include: API
+conventions, gotchas, dependencies between files, testing
+requirements, configuration that's non-obvious. NOT patterns:
+bug-specific fixes, story-specific implementation details, anything
+already in `plan.md`.
+
+If you're unsure whether something qualifies, err on the side of
+writing it down — `AGENTS.md` is cheap to grep, expensive to
+re-derive.
+
 ## Cleanup
 
 Conditional, not automatic:
@@ -177,3 +193,30 @@ the session — usually no manual step needed.
 - Marking done without verification → breaks the loop
 - Forgetting to register background agent IDs → unrecoverable
 - Pasting raw logs into plan.md → bloats recovery cost
+
+## Parallel sub-agents: branch + squash
+
+When dispatching multiple parallel sub-agents that may touch
+overlapping files (e.g., several language adapters or several CLI
+subcommands), use the **branch + squash** protocol to eliminate
+concurrent-edit races:
+
+1. Each sub-agent works on a feature branch named `ralph/<agent-id>`
+   (created from `main`).
+2. Sub-agent commits to that branch, pushes, and reports the branch
+   name back.
+3. Orchestrator merges branches into `main` **one at a time** with
+   `git merge --squash <branch> && git commit`, running tests between
+   each merge.
+4. On merge failure, orchestrator either resolves manually or
+   re-dispatches the failing agent with the latest `main` as base.
+
+**Trade-off**: serialization adds wall-clock time vs. reckless
+parallel commits, but eliminates the "agent A's commit accidentally
+bundled in agent B's WIP files" failure mode that we hit during the
+multi-language tracer rollout.
+
+**When to skip**: if all parallel agents truly touch disjoint files
+(verified by you in the dispatch plan), parallel commits to `main`
+are fine. The branch + squash protocol is for the cases where overlap
+is possible.
