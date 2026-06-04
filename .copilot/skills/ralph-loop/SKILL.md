@@ -1,13 +1,19 @@
 ---
 name: ralph-loop
 description: >-
-    Use for coding work that must remain resumable across turns, compaction,
-    /clear, sleep, background agents, model races, or multiple sessions.
-    Triggers: "continue later", "keep working", "multi-phase", "background
-    agents", "model race", "resume after compaction", "spans more than one
-    session", "long debug". Maintains durable plan.md plus structured todos
-    so a fresh agent can pick up where the previous left off. Skip for
-    one-shot edits or pure questions.
+    Default workflow for coding tasks. Use for anything beyond a trivial
+    single-file edit: implementing a feature, fixing a non-obvious bug,
+    refactoring, migrating, debugging, adding tests, or any work that
+    touches more than one file or requires verification. Also use whenever
+    work must remain resumable across turns, compaction, /clear, sleep,
+    background agents, model races, or multiple sessions. Triggers include
+    "implement", "build", "add feature", "fix bug", "refactor", "migrate",
+    "debug", "write tests", "continue later", "keep working", "multi-phase",
+    "background agents", "model race", "resume after compaction", "spans
+    more than one session", "long debug". Maintains durable plan.md plus
+    structured todos with verifiable acceptance criteria so progress is
+    real and a fresh agent can resume from disk alone. Skip ONLY for
+    pure questions, single-line fixes, or read-only lookups.
 user-invocable: true
 ---
 
@@ -19,13 +25,22 @@ spawned after compaction or `/clear` — can resume from the files alone.
 
 ## Use when
 
+Default to using this loop for any coding work. Specifically:
+
+- Implementing a feature, however small, that touches more than one file
+- Fixing a bug whose root cause isn't immediately obvious
+- Refactoring, migration, or cleanup
+- Writing or expanding tests
+- Debugging, QA, or investigation that involves running commands and iterating
 - Multi-file or multi-phase implementation
-- Long debugging, QA, migration, or refactor
 - Background agents launched whose IDs need recovery
 - Model races or other parallel agent coordination
-- Work likely to span more than one session
+- Work likely to span more than one session, or to outlive a compaction / `/clear`
 
-Skip for one-shot edits, single-file lookups, pure questions.
+Skip ONLY for: pure questions, read-only lookups, single-line typo fixes,
+or trivially obvious one-shot edits where verification is not meaningful.
+When in doubt, use the loop — the overhead is small and the resumability
+and verification discipline pay for themselves.
 
 ## Sizing rule (#1)
 
@@ -193,6 +208,9 @@ the session — usually no manual step needed.
 - Marking done without verification → breaks the loop
 - Forgetting to register background agent IDs → unrecoverable
 - Pasting raw logs into plan.md → bloats recovery cost
+- Recording failed-attempt transcripts → record a one-line lesson ("X
+  doesn't work because Y") and discard the trace; dead ends should be
+  forgotten, not paid for on every iteration
 
 ## Parallel sub-agents: branch + squash
 

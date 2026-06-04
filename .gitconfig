@@ -75,3 +75,5 @@
 	email = jasonslchen@github.com
 [pull]
 	rebase = false
+[safe]
+	directory = /Users/jasonslchen/projects/codeflow

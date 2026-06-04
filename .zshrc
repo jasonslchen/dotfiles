@@ -121,3 +121,10 @@ export GOPROXY=https://goproxy.githubapp.com/mod,https://proxy.golang.org/,direc
 export GOPRIVATE=
 export GONOPROXY=
 export GONOSUMDB='github.com/github/*'
+
+# nvm
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+alias tailscale="/Applications/Tailscale.app/Contents/MacOS/Tailscale"
