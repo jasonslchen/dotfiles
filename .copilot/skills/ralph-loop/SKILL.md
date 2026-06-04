@@ -1,19 +1,17 @@
 ---
 name: ralph-loop
 description: >-
-    Default workflow for coding tasks. Use for anything beyond a trivial
-    single-file edit: implementing a feature, fixing a non-obvious bug,
-    refactoring, migrating, debugging, adding tests, or any work that
-    touches more than one file or requires verification. Also use whenever
-    work must remain resumable across turns, compaction, /clear, sleep,
-    background agents, model races, or multiple sessions. Triggers include
-    "implement", "build", "add feature", "fix bug", "refactor", "migrate",
-    "debug", "write tests", "continue later", "keep working", "multi-phase",
-    "background agents", "model race", "resume after compaction", "spans
-    more than one session", "long debug". Maintains durable plan.md plus
-    structured todos with verifiable acceptance criteria so progress is
-    real and a fresh agent can resume from disk alone. Skip ONLY for
-    pure questions, single-line fixes, or read-only lookups.
+    Use for tasks that fit an iterative, resumable workflow: work that can
+    be broken into small verifiable stories, multi-phase implementation,
+    long debugging, migrations, refactors, test work, background agents,
+    model races, or anything that must survive compaction, /clear, sleep,
+    or multiple sessions. Triggers include "break this down", "iterate",
+    "continue later", "keep working", "multi-phase", "background agents",
+    "model race", "resume after compaction", "spans more than one session",
+    and "long debug". Maintains durable plan.md plus structured todos with
+    verifiable acceptance criteria so progress is real and a fresh agent can
+    resume from disk alone. Skip for one-shot edits, pure questions, and
+    tasks that do not benefit from iterative decomposition.
 user-invocable: true
 ---
 
@@ -25,22 +23,20 @@ spawned after compaction or `/clear` — can resume from the files alone.
 
 ## Use when
 
-Default to using this loop for any coding work. Specifically:
+Use this loop when the task fits an iterative, resumable style. Good fits:
 
-- Implementing a feature, however small, that touches more than one file
-- Fixing a bug whose root cause isn't immediately obvious
-- Refactoring, migration, or cleanup
-- Writing or expanding tests
-- Debugging, QA, or investigation that involves running commands and iterating
-- Multi-file or multi-phase implementation
+- Work that can be broken into small, verifiable stories
+- Multi-phase implementation
+- Debugging, QA, or investigation that needs repeated command/edit/verify cycles
+- Refactoring, migration, or cleanup with several dependent steps
+- Writing or expanding tests across multiple cases or files
 - Background agents launched whose IDs need recovery
 - Model races or other parallel agent coordination
 - Work likely to span more than one session, or to outlive a compaction / `/clear`
 
-Skip ONLY for: pure questions, read-only lookups, single-line typo fixes,
-or trivially obvious one-shot edits where verification is not meaningful.
-When in doubt, use the loop — the overhead is small and the resumability
-and verification discipline pay for themselves.
+Skip for pure questions, read-only lookups, single-line typo fixes,
+straightforward one-shot edits, and tasks that do not need iterative
+decomposition.
 
 ## Sizing rule (#1)
 
