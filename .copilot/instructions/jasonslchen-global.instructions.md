@@ -1,3 +1,7 @@
+---
+applyTo: '**'
+---
+
 # Global Copilot Instructions
 
 ## Memory files

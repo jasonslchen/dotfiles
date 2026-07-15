@@ -76,24 +76,48 @@ link_skill_dir "$(pwd)/.copilot/skills" "$HOME/.copilot/skills"
 link_skill_dir "$(pwd)/.claude/skills"  "$HOME/.claude/skills"
 echo "Finish linking agent skills"
 
-link_file() {
-    local src="$1" dst="$2"
-    [[ -e "$src" ]] || return 0
-    mkdir -p "$(dirname "$dst")"
-    if [[ -L "$dst" ]]; then
-        rm "$dst"
-    elif [[ -e "$dst" ]]; then
-        local backup="$dst.bak.$(date +%Y%m%d%H%M%S)"
-        echo "  backing up existing $dst -> $backup"
-        mv "$dst" "$backup"
-    fi
-    ln -s "$src" "$dst"
-    echo "  linked $src -> $dst"
+# Copy our Copilot instruction files additively into the device's instructions
+# folder. We copy (not symlink) so a device's own instructions are never
+# replaced, and we create the folder if it doesn't exist. Each of our files is
+# uniquely named; an existing, differing file with the same name is backed up
+# before being refreshed.
+copy_instructions() {
+    emulate -L zsh
+    setopt local_options null_glob
+    local src_dir="$1" dst_dir="$2"
+    [[ -d "$src_dir" ]] || return 0
+    mkdir -p "$dst_dir"
+    local f name dst backup
+    for f in "$src_dir"/*.instructions.md; do
+        name=$(basename "$f")
+        dst="$dst_dir/$name"
+        if [[ ! -e "$dst" ]]; then
+            cp "$f" "$dst"
+            echo "  added $name"
+        elif cmp -s "$f" "$dst"; then
+            echo "  up to date $name"
+        else
+            backup="$dst.bak.$(date +%Y%m%d%H%M%S)"
+            echo "  backing up existing $dst -> $backup"
+            mv "$dst" "$backup"
+            cp "$f" "$dst"
+            echo "  updated $name"
+        fi
+    done
 }
 
-echo "Linking agent instructions"
-link_file "$(pwd)/.copilot/copilot-instructions.md" "$HOME/.copilot/copilot-instructions.md"
-echo "Finish linking agent instructions"
+# Remove the legacy global instructions symlink we used to create. Its content
+# now lives in the instructions/ folder as an always-apply file. We only remove
+# our own symlink into this repo, never a device's real copilot-instructions.md.
+old_global="$HOME/.copilot/copilot-instructions.md"
+if [[ -L "$old_global" && "$(readlink "$old_global")" == *"/dotfiles/.copilot/copilot-instructions.md" ]]; then
+    rm "$old_global"
+    echo "Removed legacy global instructions symlink $old_global"
+fi
+
+echo "Adding agent instructions"
+copy_instructions "$(pwd)/.copilot/instructions" "$HOME/.copilot/instructions"
+echo "Finish adding agent instructions"
 
 # make directly highlighting readable - needs to be after zshrc line
 # colors: https://askubuntu.com/questions/466198/how-do-i-change-the-color-for-directories-with-ls-in-the-console
@@ -103,6 +127,71 @@ echo "# remove ls and directory completion highlight color" >> ~/.zshrc
 echo "_ls_colors=':ow=01;33'" >> ~/.zshrc
 echo 'zstyle ":completion:*:default" list-colors "${(s.:.)_ls_colors}"' >> ~/.zshrc
 echo 'LS_COLORS+=$_ls_colors' >> ~/.zshrc
+
+# Install GitHub Copilot CLI
+# Docs: https://docs.github.com/copilot/how-tos/set-up/install-copilot-cli
+install_copilot_cli() {
+    if command -v copilot >/dev/null 2>&1; then
+        echo "  copilot already installed ($(copilot --version 2>/dev/null | head -1))"
+    elif [[ "$(uname)" == "Darwin" ]]; then
+        brew install --cask copilot-cli
+    else
+        local installer
+        installer=$(mktemp "${TMPDIR:-/tmp}/copilot-install.XXXXXX") || return 1
+        if ! curl -fsSL https://gh.io/copilot-install -o "$installer" ||
+            ! bash "$installer"; then
+            rm -f "$installer"
+            return 1
+        fi
+        rm -f "$installer"
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+}
+
+echo "Installing GitHub Copilot CLI"
+if install_copilot_cli; then
+    echo "Finish installing GitHub Copilot CLI"
+else
+    echo "  failed to install GitHub Copilot CLI; continuing setup" >&2
+fi
+
+# Log in to GitHub Copilot CLI as the current user.
+# Copilot checks credentials in this order: environment, system keychain,
+# plaintext fallback, then GitHub CLI.
+copilot_token_supported() {
+    [[ "$1" == gho_* || "$1" == ghu_* || "$1" == github_pat_* ]]
+}
+
+copilot_authenticated() {
+    local token="${COPILOT_GITHUB_TOKEN:-${GH_TOKEN:-${GITHUB_TOKEN:-}}}"
+    if [[ -n "$token" ]]; then
+        copilot_token_supported "$token"
+        return
+    fi
+    if [[ "$(uname)" == "Darwin" ]]; then
+        security find-generic-password -s copilot-cli >/dev/null 2>&1 && return 0
+    elif command -v secret-tool >/dev/null 2>&1; then
+        secret-tool search service copilot-cli >/dev/null 2>&1 && return 0
+    fi
+    [[ -r "$HOME/.copilot/config.json" ]] &&
+        grep -Eq 'gho_[[:alnum:]_]+|ghu_[[:alnum:]_]+|github_pat_[[:alnum:]_]+' \
+            "$HOME/.copilot/config.json" && return 0
+    command -v gh >/dev/null 2>&1 || return 1
+    token=$(gh auth token 2>/dev/null) || return 1
+    copilot_token_supported "$token"
+}
+
+echo "Logging in to GitHub Copilot CLI"
+if ! command -v copilot >/dev/null 2>&1; then
+    echo "  copilot not found on PATH; skipping login"
+elif copilot_authenticated; then
+    echo "  already authenticated; skipping login"
+elif [[ -t 0 ]]; then
+    copilot login
+else
+    echo "  no TTY available; run 'copilot login' manually to authenticate"
+fi
+echo "Finish logging in to GitHub Copilot CLI"
 
 # Install lazygit
 echo "Installing lazygit"
