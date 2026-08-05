@@ -4,18 +4,6 @@ applyTo: '**'
 
 # Global Copilot Instructions
 
-## Memory files
-
-Before answering repository-specific code questions:
-
-1. Read the relevant memory file at `~/.copilot/memory/<repo-name>/findings.md`, if it exists.
-2. Use confirmed findings from that file to avoid repeating known mistakes.
-3. If investigating a repository without a memory file, create `~/.copilot/memory/<repo-name>/findings.md` and record only verified findings or corrections.
-
-Known memory files:
-
-- `~/.copilot/memory/copilot-api/findings.md` — authentication, model policies, rate limiting, caching, telemetry, model registry.
-
 ## Investigation and answering
 
 Very important:
