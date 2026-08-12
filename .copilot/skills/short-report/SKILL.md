@@ -51,6 +51,17 @@ anything up.
 6. **Read-only by default.** Draft the report. Do not comment on issues,
    update bodies, edit labels, or change projects unless the user explicitly
    asks.
+7. **Report delivery state precisely.** Distinguish implementation, merge,
+   deployment, rollout, and completion. Never infer a later delivery state
+   from an earlier one.
+8. **Apply materiality.** Include details only when they change status,
+   delivery confidence, scope, decisions, or required action. Routine
+   work-in-progress details are not headline material unless they materially
+   affect delivery.
+9. **Use risks precisely.** Unfinished planned work is progress or a next
+   step, not automatically a risk or blocker. List only genuine uncertainty,
+   dependency, failure mode, or external constraint that could prevent the
+   intended outcome.
 
 ## Input handling
 
@@ -59,8 +70,8 @@ Parse all identifiers from the user message:
 - Full URLs: `https://github.com/OWNER/REPO/issues/123`,
   `https://github.com/OWNER/REPO/pull/123`
 - Shorthand refs: `OWNER/REPO#123`, `REPO#123`, `#123`
-- Review/release refs: `security-reviews#123`, `releases#123`,
-  `product-and-privacy-legal#123`
+- References to work tracked in dedicated review, release, compliance, or
+  operational repositories
 - Feature flags, ADR numbers, project names, milestone names, and target dates
 
 If a shorthand ref lacks owner/repo context and cannot be resolved from the
@@ -113,6 +124,10 @@ Also search by exact title phrases, feature flag names, ADR IDs, release IDs,
 and high-signal identifiers from the seed. Keep searches specific; broad
 GitHub searches produce noise.
 
+Do not stop at directly linked artifacts. When the tracking artifact may be
+incomplete, search recent related implementation work by repository, author,
+exact identifiers, and high-signal terminology.
+
 For each discovered artifact, read enough detail to classify it:
 
 - Merged / closed / done
@@ -128,22 +143,9 @@ For each discovered artifact, read enough detail to classify it:
 Look across all relevant repos, not just the seed repo. Start with repos
 mentioned by references, then use GitHub search for reverse references.
 
-Common Copilot report surfaces include:
-
-- `github/github`
-- `github/copilot-api`
-- `github/copilot-experiences`
-- `github/copilot-discovery-team`
-- `github/copilot-model-registry`
-- `github/copilot-proxy`
-- `github/copilot-token-service`
-- `github/copilot-limiter`
-- `github/security-reviews`
-- `github/product-and-privacy-legal`
-- `github/releases`
-
-Do not assume this list is complete. Follow the actual references and search
-results from the seed issue.
+Follow the actual work graph into implementation, dependency, configuration,
+schema, review, release, compliance, rollout, and operational repositories
+when the evidence points there. Do not assume a fixed repository list.
 
 ### 4. Determine trend and headline
 
@@ -154,7 +156,7 @@ Classify the update:
 - `🔴 off track`
 - `⚪ unknown`
 
-Trend is based on the primary GA/release objective:
+Trend is based on the primary project or release objective:
 
 - **On track:** no unresolved blocker threatens the date.
 - **At risk:** one or more risks could miss the date, but there is a credible
@@ -176,6 +178,8 @@ When sources disagree:
 - Prefer newer comments over older body text.
 - Prefer merged PR state over issue checklist text.
 - Prefer explicit DRI/owner comments over inferred ownership.
+- Prefer the exact deployment or rollout state over assumptions based on merge
+  state.
 - Preserve uncertainty if no source clearly resolves it.
 
 Do not silently collapse conflicting evidence. Mention the conflict if it
@@ -204,16 +208,13 @@ subsection when it does not add material context.
 
 <!-- data key="update" start -->
 **Headline**
-- [Whether status changed and the primary blocker or risk.]
-- [The most important new risk, decision, or resolved issue.]
-- [The highest-signal engineering or rollout progress.]
+- [Highest-signal status movement, blocker, risk, decision, or progress.]
 
 **[Optional: specific investigation or dependency title]**
 [Briefly explain why this investigation matters to the target.]
 
 Findings:
-- [Verified root cause or evidence with a GitHub reference.]
-- [Impact, mitigation, or remaining uncertainty.]
+- [Verified root cause, evidence, impact, mitigation, or uncertainty.]
 
 [Summarize the fix or next validation step and link its issue or pull request.]
 
@@ -224,24 +225,17 @@ Findings:
 - 🚧 [owner/repo#123](https://github.com/owner/repo/pull/123) (@owner): [Current state, gate, or dependency.]
 
 **Reviews**
-- Security: [Status and link, or unknown.]
-- Privacy / Legal: [Status and link, or unknown.]
-- RAI: [Status and link, or unknown.]
-- Release: [Status and link, or unknown.]
+- [Review type]: [Substantive status and link.]
 
 **Risks and blockers**
-- **[Primary risk]:** [Impact, change since the last update, owner, and mitigation or decision needed.]
-- **[Additional risk]:** [Impact, status, owner, and mitigation.]
+- **[Risk]:** [Impact, status, owner, and mitigation or decision needed.]
 
 **Next up**
-- [Top concrete action.]
-- [Next concrete action.]
-- [Next concrete action.]
+- [Concrete next action.]
 <!-- data end -->
 
 <!-- data key="isReport" value="true" -->
 <!-- data key="howieReportName" value="short" -->
-<!-- gh project="<project-number>" update-field="Update" value="<exact contents of the Update data block>" -->
 ```
 
 Formatting rules:
@@ -249,14 +243,28 @@ Formatting rules:
 - Use one to four headline bullets and lead with trend movement.
 - Keep merged and in-flight work separate; include only items that materially
   affect delivery, risk, or scope.
+- Use concrete implementation artifacts in engineering progress. For software
+  projects that use pull requests, report merged and active pull requests;
+  place planning-only tracking issues under `Next up`.
 - Use a named investigation subsection instead of a generic appendix. Keep it
   only when root-cause or rollout detail is necessary for decision-making.
 - Put decisions and asks directly in the relevant risk or `Next up` item.
-- Omit empty optional lines or sections rather than emitting placeholders.
+- Include routine draft, review, or CI details only when they materially change
+  delivery confidence or required action.
+- Do not use `Risks and blockers` as a backlog. Move ordinary implementation
+  work, review work, and rollout tasks to engineering progress or `Next up`.
+- Name risks by the affected system, dimension, and consequence instead of
+  using vague umbrella terms. Do not add redundant contrasts once the meaning
+  is clear.
+- Never emit an empty, placeholder, `none`, `unknown`, or `no update` bullet
+  for an optional item. If there is no substantive content, omit the bullet.
+- Do not add a review bullet solely to say that no review or review issue was
+  found. Include the absence only when it is an explicit blocker or ask, and
+  place it under `Risks and blockers`.
+- Omit an entire optional section when it would otherwise contain no
+  substantive bullets. `Trending` and `Target date` remain required data
+  fields and may explicitly be unknown.
 - Always include the `isReport` and `howieReportName` markers.
-- Include the `gh project` marker only when the project number is known. Its
-  `value` must contain the exact rendered contents between the `update`
-  markers, without the markers themselves.
 
 ## Quality bar
 
@@ -265,10 +273,16 @@ Before responding, verify:
 - The seed issue/PR was read from GitHub unless the user explicitly asked not
   to look it up.
 - Reverse references were searched.
+- All material completed and active implementation artifacts are represented.
 - Every merged/in-flight item has current state from GitHub.
+- Delivery-state wording matches the source exactly.
+- Planning-only items are not presented as implementation progress.
+- Routine work-in-progress details are not overstated.
 - Risks are distinct from next steps.
+- Every risk is a real threat or blocker, not merely unfinished project work.
 - The headline matches the risks and blockers section.
 - Unknowns are labeled instead of guessed.
+- No empty, placeholder, or content-free bullet remains in the report.
 - The report contains the required Howie data markers with correctly matched
   `start` and `end` comments.
 - The report is short enough to paste into a GitHub update, with only material
