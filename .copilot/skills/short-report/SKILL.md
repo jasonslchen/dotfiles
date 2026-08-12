@@ -44,9 +44,10 @@ anything up.
 4. **Do not invent status.** If target date, owner, review state, or rollout
    state is not visible from GitHub or user-provided context, write "unknown"
    or omit it.
-5. **Separate signal from appendix.** Put decisions, risks, progress, and next
-   steps in the main report. Put deep investigations, metrics details, and
-   root-cause notes in an appendix.
+5. **Separate signal from detail.** Keep decisions, risks, progress, reviews,
+   and next steps in the main update. When an investigation materially affects
+   status, add one descriptively named subsection with only the root cause,
+   evidence, mitigation, and remaining uncertainty needed to understand it.
 6. **Read-only by default.** Draft the report. Do not comment on issues,
    update bodies, edit labels, or change projects unless the user explicitly
    asks.
@@ -150,7 +151,7 @@ Classify the update:
 
 - `🟢 on track`
 - `🟡 at risk`
-- `🔴 blocked`
+- `🔴 off track`
 - `⚪ unknown`
 
 Trend is based on the primary GA/release objective:
@@ -158,8 +159,8 @@ Trend is based on the primary GA/release objective:
 - **On track:** no unresolved blocker threatens the date.
 - **At risk:** one or more risks could miss the date, but there is a credible
   mitigation path.
-- **Blocked:** a required decision, dependency, approval, or fix has no clear
-  path or owner.
+- **Off track:** the target is expected to slip, or a required decision,
+  dependency, approval, or fix has no credible path in time.
 - **Unknown:** GitHub evidence is insufficient.
 
 The headline should answer:
@@ -182,64 +183,80 @@ affects decisions or risk.
 
 ## Output format
 
-Use this format by default.
+Use this Howie-compatible format by default. Preserve the HTML data markers
+exactly, replace every placeholder, and omit the optional investigation
+subsection when it does not add material context.
 
 ```md
-Trending
-[🟢 on track / 🟡 at risk / 🔴 blocked / ⚪ unknown]
+### Trending
 
-Target date
+<!-- data key="trending" start -->
+[🟢 on track / 🟡 at risk / 🔴 off track / ⚪ unknown]
+<!-- data end -->
+
+### Target date
+
+<!-- data key="target_date" start -->
 [YYYY-MM-DD or unknown]
+<!-- data end -->
 
-Headline
-[1-3 sentences. Lead with status change, primary blocker, new material risk,
-and the highest-signal progress.]
+### Update
 
-Status since last update
-- Status: [unchanged / improved / worsened / unknown]
-- Primary blocker: [...]
-- New risks: [...]
-- Resolved risks: [...]
-- Key movement: [...]
+<!-- data key="update" start -->
+**Headline**
+- [Whether status changed and the primary blocker or risk.]
+- [The most important new risk, decision, or resolved issue.]
+- [The highest-signal engineering or rollout progress.]
 
-Workstreams
+**[Optional: specific investigation or dependency title]**
+[Briefly explain why this investigation matters to the target.]
 
-| Workstream | Status | Owner / DRI | Update | Next step |
-|---|---:|---|---|---|
-| [Name] | 🟢/🟡/🔴/🚧/⚪ | @owner or unknown | [Short factual update] | [Concrete next action] |
+Findings:
+- [Verified root cause or evidence with a GitHub reference.]
+- [Impact, mitigation, or remaining uncertainty.]
 
-Risks and blockers
+[Summarize the fix or next validation step and link its issue or pull request.]
 
-| Risk | Severity | Status | Owner | Mitigation / ask |
-|---|---:|---|---|---|
-| [Risk] | 🟡/🔴 | [new / unchanged / improving / blocked] | @owner or unknown | [Decision, fix, or mitigation needed] |
+**Engineering progress (merged)**
+- ✅ [owner/repo#123](https://github.com/owner/repo/pull/123) (@owner): [Short impact.]
 
-Engineering progress
+**Engineering progress (in flight)**
+- 🚧 [owner/repo#123](https://github.com/owner/repo/pull/123) (@owner): [Current state, gate, or dependency.]
 
-Merged
-- ✅ owner/repo#123: [short impact]
+**Reviews**
+- Security: [Status and link, or unknown.]
+- Privacy / Legal: [Status and link, or unknown.]
+- RAI: [Status and link, or unknown.]
+- Release: [Status and link, or unknown.]
 
-In flight
-- 🚧 owner/repo#123: [short impact, gate, or ETA if visible]
+**Risks and blockers**
+- **[Primary risk]:** [Impact, change since the last update, owner, and mitigation or decision needed.]
+- **[Additional risk]:** [Impact, status, owner, and mitigation.]
 
-Reviews / approvals
-- Security: [...]
-- Privacy / Legal: [...]
-- RAI: [...]
-- Release: [...]
+**Next up**
+- [Top concrete action.]
+- [Next concrete action.]
+- [Next concrete action.]
+<!-- data end -->
 
-Decisions / asks
-- [Decision needed, owner if visible, deadline if visible]
-
-Next up
-- [Top concrete action]
-- [Next concrete action]
-- [Next concrete action]
-
-Appendix: investigation details
-[Optional. Include root-cause details, rollout metrics, comment-derived
-findings, and source notes that are too detailed for the main report.]
+<!-- data key="isReport" value="true" -->
+<!-- data key="howieReportName" value="short" -->
+<!-- gh project="<project-number>" update-field="Update" value="<exact contents of the Update data block>" -->
 ```
+
+Formatting rules:
+
+- Use one to four headline bullets and lead with trend movement.
+- Keep merged and in-flight work separate; include only items that materially
+  affect delivery, risk, or scope.
+- Use a named investigation subsection instead of a generic appendix. Keep it
+  only when root-cause or rollout detail is necessary for decision-making.
+- Put decisions and asks directly in the relevant risk or `Next up` item.
+- Omit empty optional lines or sections rather than emitting placeholders.
+- Always include the `isReport` and `howieReportName` markers.
+- Include the `gh project` marker only when the project number is known. Its
+  `value` must contain the exact rendered contents between the `update`
+  markers, without the markers themselves.
 
 ## Quality bar
 
@@ -250,10 +267,12 @@ Before responding, verify:
 - Reverse references were searched.
 - Every merged/in-flight item has current state from GitHub.
 - Risks are distinct from next steps.
-- The headline matches the risk table.
+- The headline matches the risks and blockers section.
 - Unknowns are labeled instead of guessed.
-- The report is short enough to paste into a GitHub update, with details moved
-  to the appendix.
+- The report contains the required Howie data markers with correctly matched
+  `start` and `end` comments.
+- The report is short enough to paste into a GitHub update, with only material
+  investigation details retained.
 
 ## If data access fails
 
