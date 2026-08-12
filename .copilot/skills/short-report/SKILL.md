@@ -208,7 +208,7 @@ subsection when it does not add material context.
 
 <!-- data key="update" start -->
 **Headline**
-- [Highest-signal status movement, blocker, risk, decision, or progress.]
+- [Trend emoji] [Highest-signal status movement, blocker, risk, decision, or progress.]
 
 **[Optional: specific investigation or dependency title]**
 [Briefly explain why this investigation matters to the target.]
@@ -218,7 +218,7 @@ Findings:
 
 [Summarize the fix or next validation step and link its issue or pull request.]
 
-**Engineering progress (merged)**
+**Engineering progress (merged this period)**
 - ✅ [owner/repo#123](https://github.com/owner/repo/pull/123) (@owner): [Short impact.]
 
 **Engineering progress (in flight)**
@@ -228,7 +228,7 @@ Findings:
 - [Review type]: [Substantive status and link.]
 
 **Risks and blockers**
-- **[Risk]:** [Impact, status, owner, and mitigation or decision needed.]
+- [🔴/🟡] **[Risk or blocker]:** [Impact, status, owner, and mitigation or decision needed.]
 
 **Next up**
 - [Concrete next action.]
@@ -240,7 +240,11 @@ Findings:
 
 Formatting rules:
 
-- Use one to four headline bullets and lead with trend movement.
+- Use one to four headline bullets. Start the first bullet with the current
+  trend emoji and state whether the trend improved, worsened, stayed the same,
+  or remains unknown.
+- Include meaningful positive movement even when the overall trend is at risk
+  or off track.
 - Keep merged and in-flight work separate; include only items that materially
   affect delivery, risk, or scope.
 - Use concrete implementation artifacts in engineering progress. For software
@@ -248,6 +252,9 @@ Formatting rules:
   place planning-only tracking issues under `Next up`.
 - Use a named investigation subsection instead of a generic appendix. Keep it
   only when root-cause or rollout detail is necessary for decision-making.
+- Add descriptively named workstream, handoff, rollout, or investigation
+  sections when they materially explain status. Do not force every report into
+  the same set of optional sections.
 - Put decisions and asks directly in the relevant risk or `Next up` item.
 - Include routine draft, review, or CI details only when they materially change
   delivery confidence or required action.
@@ -265,6 +272,20 @@ Formatting rules:
   substantive bullets. `Trending` and `Target date` remain required data
   fields and may explicitly be unknown.
 - Always include the `isReport` and `howieReportName` markers.
+
+Emoji semantics:
+
+- `🟢`, `🟡`, `🔴`, and `⚪` represent the overall trend.
+- `✅` marks completed implementation or rollout work.
+- `🚧` marks active implementation work.
+- `🆕` may precede `🚧` only when the item is new since a known previous
+  report.
+- `🔴` marks a blocker to the primary objective or target date.
+- `🟡` marks a material risk that does not currently block the primary
+  objective.
+- Use emojis as compact status metadata, not decoration.
+- Separate optional or post-target follow-ups from true blockers when that
+  distinction is material.
 
 ## Quality bar
 
