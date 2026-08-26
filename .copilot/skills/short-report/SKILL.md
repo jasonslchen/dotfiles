@@ -105,7 +105,51 @@ Capture:
 - Linked issues, sub-issues, task lists, PRs, review issues, release issues
 - Recently updated comments and decision comments
 
-### 2. Build the related-work graph
+### 2. Enumerate sub-issues and approval gates
+
+Issue bodies and comments do not expose GitHub's structured sub-issue
+relationships. For an issue seed, query those relationships directly; do not
+assume linked text or reverse-reference searches are complete.
+
+```sh
+gh api graphql --paginate \
+  -F owner=OWNER -F repo=REPO -F number=NUMBER \
+  -f query='
+    query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
+      repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+          subIssues(first: 100, after: $endCursor) {
+            nodes {
+              number
+              title
+              state
+              url
+              createdAt
+              updatedAt
+            }
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+          }
+        }
+      }
+    }'
+```
+
+Read every sub-issue that is open, was created or updated during the reporting
+window, or otherwise materially changes current status. Repeat this step for
+relevant sub-issues that are themselves tracking artifacts.
+
+Follow security, privacy, legal, compliance, release, and operational-review
+tasks into their dedicated repositories. Treat required approvals as
+first-class delivery artifacts and record their exact state: requested,
+opened, queued, assigned, on hold, approved, or completed. An opened, queued,
+or assigned review is not approved. If the tracking issue requires approval,
+report it as a delivery gate; classify it as a risk or blocker only when
+evidence shows it threatens the objective or target date.
+
+### 3. Build the related-work graph
 
 Extract every GitHub reference from the seed body and comments. Then search
 for reverse references so work that mentions the seed but is not linked from
@@ -138,7 +182,7 @@ For each discovered artifact, read enough detail to classify it:
 - Risk / incident / investigation
 - Duplicate or irrelevant
 
-### 3. Cross-repo coverage
+### 4. Cross-repo coverage
 
 Look across all relevant repos, not just the seed repo. Start with repos
 mentioned by references, then use GitHub search for reverse references.
@@ -147,7 +191,7 @@ Follow the actual work graph into implementation, dependency, configuration,
 schema, review, release, compliance, rollout, and operational repositories
 when the evidence points there. Do not assume a fixed repository list.
 
-### 4. Determine trend and headline
+### 5. Determine trend and headline
 
 Classify the update:
 
@@ -171,7 +215,7 @@ The headline should answer:
 2. What is the primary blocker or risk?
 3. What new material risk, decision, or progress matters most?
 
-### 5. Reconcile conflicts
+### 6. Reconcile conflicts
 
 When sources disagree:
 
@@ -293,6 +337,12 @@ Before responding, verify:
 
 - The seed issue/PR was read from GitHub unless the user explicitly asked not
   to look it up.
+- Structured sub-issue relationships were queried for issue seeds and relevant
+  nested tracking issues.
+- Every material open or recently changed sub-issue was classified, including
+  required review and approval artifacts in dedicated repositories.
+- Review state is reported precisely; requested, opened, queued, assigned, on
+  hold, approved, and completed are not treated as interchangeable.
 - Reverse references were searched.
 - All material completed and active implementation artifacts are represented.
 - Every merged/in-flight item has current state from GitHub.
