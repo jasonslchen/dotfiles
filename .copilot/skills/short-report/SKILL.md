@@ -6,19 +6,21 @@ description: >-
     user asks for a short report, status update, weekly update, leadership
     update, or asks to turn an epic/batch into a reusable report. The skill
     researches related GitHub issues, PRs, review issues, release issues,
-    cross-repo references, comments, labels, milestones, and linked work before
-    producing a concise report with risks, blockers, progress, decisions, and
-    next steps. Triggers: "short report", "/short report", "short update",
+    cross-repo references, comments, labels, milestones, linked work, and
+    relevant Slack discussions through the Slack MCP before producing a
+    concise report with risks, blockers, progress, decisions, and next steps.
+    Triggers: "short report", "/short report", "short update",
     "status report", "weekly report", "build a report from this issue",
     "summarize this epic", "summarize this batch", "report update".
 user-invocable: true
 ---
 
-# Short Report — GitHub-Grounded Status Updates
+# Short Report — GitHub and Slack-Grounded Status Updates
 
 Turn a pasted GitHub issue, batch, epic, or tracking list into a reusable
-`/short`-style report. The report must be grounded in current GitHub data,
-not just the pasted text.
+`/short`-style report. Ground it in current GitHub artifacts and relevant
+Slack discussions, using the Slack MCP for Slack research, not just the
+pasted text.
 
 ## Use when
 
@@ -35,22 +37,25 @@ anything up.
 ## Core rules
 
 1. **Research first.** Read the seed issue/PR/batch, then discover related
-   GitHub artifacts before writing.
-2. **Use GitHub as source of truth.** Prefer `gh` CLI for issues, PRs,
-   searches, comments, and cross-repo references.
-3. **Cite internally while working.** Track which issue/PR/comment supports
-   each claim. The final report can stay clean, but every non-obvious claim
-   must be traceable to a GitHub URL or `owner/repo#number`.
+   GitHub artifacts and Slack discussions before writing.
+2. **Use the right source for each claim.** Prefer `gh` CLI for GitHub
+   research; GitHub is authoritative for issue, PR, and review-artifact state.
+   Use the Slack MCP for current owner updates, decisions, operational
+   evidence, and blockers that may not yet be reflected in tracking issues.
+3. **Cite internally while working.** Track which issue, PR, comment, or
+   Slack message supports each claim. Every non-obvious claim must be
+   traceable to a GitHub URL, `owner/repo#number`, or Slack permalink.
+   Record the author and timestamp for Slack evidence.
 4. **Do not invent status.** If target date, owner, review state, or rollout
-   state is not visible from GitHub or user-provided context, write "unknown"
-   or omit it.
+   state is not supported by the fetched sources or user-provided context,
+   write "unknown" or omit it.
 5. **Separate signal from detail.** Keep decisions, risks, progress, reviews,
    and next steps in the main update. When an investigation materially affects
    status, add one descriptively named subsection with only the root cause,
    evidence, mitigation, and remaining uncertainty needed to understand it.
 6. **Read-only by default.** Draft the report. Do not comment on issues,
-   update bodies, edit labels, or change projects unless the user explicitly
-   asks.
+   update bodies, edit labels, change projects, or post Slack messages unless
+   the user explicitly asks.
 7. **Report delivery state precisely.** Distinguish implementation, merge,
    deployment, rollout, and completion. Never infer a later delivery state
    from an earlier one.
@@ -73,6 +78,7 @@ Parse all identifiers from the user message:
 - References to work tracked in dedicated review, release, compliance, or
   operational repositories
 - Feature flags, ADR numbers, project names, milestone names, and target dates
+- Slack message/thread permalinks, channel names, and owner references
 
 If a shorthand ref lacks owner/repo context and cannot be resolved from the
 seed issue, ask one focused clarification with `ask_user`.
@@ -191,7 +197,79 @@ Follow the actual work graph into implementation, dependency, configuration,
 schema, review, release, compliance, rollout, and operational repositories
 when the evidence points there. Do not assume a fixed repository list.
 
-### 5. Determine trend and headline
+### 5. Search Slack for current decisions and operational updates
+
+Search Slack as well as GitHub unless the user explicitly excludes it or the
+Slack MCP is unavailable. Discover the available Slack MCP tools and their
+schemas before calling them; do not guess tool prefixes or arguments. Use
+the MCP, not browser scraping, shell credentials, or Slack API workarounds.
+
+**Public first; private access requires consent**
+
+- Start with `slack_search_public`. A general request for a report or Slack
+  research is not permission to search private channels or DMs.
+- Before searching or reading private channels, DMs, or group DMs, use
+  `ask_user` to obtain explicit permission for the required scope, unless the
+  user has already explicitly authorized that scope for this task.
+- Only then use `slack_search_public_and_private`, setting `channel_types`
+  explicitly and constraining the query to the approved scope. Do not rely
+  on its default, which includes all channel types. Permission for private
+  channels does not include DMs or group DMs.
+- Do not broaden denied access. Continue with public/GitHub evidence and
+  disclose any material coverage gap.
+
+**Find the relevant discussions**
+
+- Extract Slack links from the seed and related GitHub bodies/comments.
+  Follow material linked threads, subject to the consent rules above.
+- Start with a small batch of independent searches for the exact issue/PR
+  reference or URL, feature flag, project name, or other high-signal terms.
+  Use the reporting window or the last report as the initial date bound;
+  otherwise start with the last seven days. Widen only when needed to find
+  missing context or an older governing decision.
+- Narrow by known channel or owner when possible. Use
+  `slack_search_channels` to resolve relevant channel names and
+  `slack_search_users` only when an author's identity needs clarification.
+  Do not assume a Slack display name is a GitHub login.
+
+Example `query` values for `slack_search_public` (replace placeholders):
+
+```text
+"OWNER/REPO#NUMBER" after:YYYY-MM-DD
+"https://github.com/OWNER/REPO/issues/NUMBER" after:YYYY-MM-DD
+"feature_flag_name" in:relevant-channel after:YYYY-MM-DD
+```
+
+Prefer concise, bounded search results, then read only material discussions.
+Run independent searches in parallel. If exact searches return no matches,
+try a specific project phrase or a targeted semantic question; no matches
+are not proof that no discussion or implementation exists.
+
+**Read context and connect it back to delivery**
+
+- Use `slack_read_thread` with the channel ID and parent message timestamp
+  from the results or linked thread. Resolve reply links to their parent
+  thread and paginate replies so later decisions or reversals are not missed.
+  Do not base a material claim on a search snippet alone.
+- Use `slack_read_channel` only when bounded surrounding history is needed.
+  Record the source permalink, author, timestamp, channel, and the exact
+  scope of a decision, blocker, deployment, or rollout claim.
+- Follow newly discovered GitHub links and verify their current state.
+  Slack saying "merged" does not replace checking the PR; a deployment
+  announcement applies only to its stated environment and rollout cohort.
+- Distinguish a proposal, a request for approval, an authorized decision,
+  an experiment, and completed work. Do not turn an informal acknowledgment
+  into required approval.
+- Include a permalink for material Slack-only updates in the report. Do
+  not copy private-channel or DM content into a broader-audience report
+  without explicit permission for that disclosure; permission to search
+  is not permission to redistribute.
+
+Stop expanding when the material status questions have adequate evidence.
+Do not delay a useful draft for exhaustive Slack history; disclose unresolved
+material gaps rather than guessing.
+
+### 6. Determine trend and headline
 
 Classify the update:
 
@@ -207,7 +285,7 @@ Trend is based on the primary project or release objective:
   mitigation path.
 - **Off track:** the target is expected to slip, or a required decision,
   dependency, approval, or fix has no credible path in time.
-- **Unknown:** GitHub evidence is insufficient.
+- **Unknown:** available evidence is insufficient.
 
 The headline should answer:
 
@@ -215,15 +293,20 @@ The headline should answer:
 2. What is the primary blocker or risk?
 3. What new material risk, decision, or progress matters most?
 
-### 6. Reconcile conflicts
+### 7. Reconcile conflicts
 
 When sources disagree:
 
-- Prefer newer comments over older body text.
-- Prefer merged PR state over issue checklist text.
-- Prefer explicit DRI/owner comments over inferred ownership.
+- Prefer explicit current DRI/owner updates over stale issue bodies or
+  summaries, including Slack updates that have not reached the tracker.
+- Verify structured GitHub states directly. Prefer the PR's actual state
+  over a checklist or Slack claim that it merged.
+- Prefer explicit DRI/owner statements over inferred ownership.
 - Prefer the exact deployment or rollout state over assumptions based on merge
-  state.
+  state. Attribute Slack-only operational evidence and preserve its scope.
+- A newer Slack message does not automatically supersede a formal approval
+  or authoritative decision. Check the decision maker, scope, and full thread;
+  if the recorded approval and discussion disagree, report the discrepancy.
 - Preserve uncertainty if no source clearly resolves it.
 
 Do not silently collapse conflicting evidence. Mention the conflict if it
@@ -344,6 +427,13 @@ Before responding, verify:
 - Review state is reported precisely; requested, opened, queued, assigned, on
   hold, approved, and completed are not treated as interchangeable.
 - Reverse references were searched.
+- Relevant public Slack discussions and material linked threads were
+  researched, or a material coverage gap was disclosed if Slack was
+  unavailable, out of scope, or explicitly excluded.
+- Private-channel/DM access stayed within explicit consent, and private
+  content is not being redistributed beyond the approved audience.
+- Material Slack claims have full-thread context, author/timestamp evidence,
+  and source permalinks; linked GitHub artifact states were verified.
 - All material completed and active implementation artifacts are represented.
 - Every merged/in-flight item has current state from GitHub.
 - Delivery-state wording matches the source exactly.
@@ -361,10 +451,16 @@ Before responding, verify:
 
 ## If data access fails
 
-If `gh` is not authenticated, content is restricted, or a private repo is
-inaccessible:
+If GitHub or the Slack MCP is unavailable, authentication fails, permission
+is denied, or a source is restricted:
 
-1. Say exactly which repo/ref could not be read.
-2. Use only the user's pasted text for that area.
-3. Mark affected claims as unverified or unknown.
-4. Do not try to bypass access controls.
+1. Say which service or repo/ref/channel/thread could not be read, without
+   exposing private details to an unauthorized audience.
+2. Handle sources independently: retain verified accessible GitHub and
+   Slack evidence plus user-provided context. A Slack failure does not
+   invalidate verified GitHub work or prevent a GitHub-only draft.
+3. Mark affected claims as unverified or unknown and disclose material
+   research gaps. Distinguish an access failure from a successful search
+   with no relevant results.
+4. Do not bypass access controls, switch tools to retrieve denied content,
+   or claim inaccessible discussions were reviewed.
