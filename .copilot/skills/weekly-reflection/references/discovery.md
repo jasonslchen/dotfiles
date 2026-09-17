@@ -23,6 +23,65 @@ filters outward when necessary, then filter actual timestamps afterward.
 Older governing context
 and newer state checks are not additional in-window contributions.
 
+## Required evidence map and inventory
+
+Before drafting prose, build one record per material artifact/contribution
+and retain its dated milestones. Every field below is required: use an
+explicit `unknown`, `not applicable`, or disclosure omission with a reason
+when evidence is absent or unsafe, never an invented value. Keep this map
+in memory under the skill's scratch/privacy rules, not as a raw source dump.
+
+| Field | Required evidence |
+|-------|-------------------|
+| Project and repository | Recognizable human project/feature name from the source and exact `owner/repo`; retain multiple repos for cross-repo work. If no project name is verified, use the repo rather than inventing a theme. For a decision with no verified repository, retain its verified project or safe source heading and say `No repository verified`; do not omit it or invent repo attribution. |
+| Artifact identity | Type (issue, PR, decision, review, commit, release, etc.), canonical ID, number where the source has one, verified descriptive title at the period cutoff, and canonical source URL. Retain separately dated later renames; if the period title cannot be verified, label the known current title and historical-title gap. Record a safe faithful abbreviation when needed; mark restricted title text omitted. Non-ticket decisions use their verified heading/permalink, not a fabricated issue number. |
+| Relationships | Verified parent ticket/epic, sub-issue, closing issue, implementation PR, decision and deployment links, each with type, ID/title, and relation evidence. Distinguish `closes`, `part of`, `implements`, and `mentions`; a cross-reference alone is not a closing or parent relation. |
+| Actor and event | Exact actor, action/contribution, event ID/permalink and timestamp with zone; distinguish the user's events from collaborators' and automation. |
+| State over time | In-window milestones, state as of the exclusive period end, closure reason/reopening history, and separately dated later current state. Record merged component versus open parent and deployment environment/cohort independently. |
+| Human and AI roles | The user's design, implementation, review, validation, or coordination choices versus agent execution and collaborators' contributions, with evidence. |
+| Concrete change | Specific problem/prior behavior, action or behavior change, and safe affected component names; distinguish proposed behavior from implemented behavior. |
+| Outcome evidence | Closure/merge/deployment evidence; observed result with source, baseline, units and measurement window where available, separately from expected benefit/rationale. No result measurement means unknown/not measured, not zero or success. |
+| Analysis and eligibility | Evidenced blockers, tradeoffs, rework, dependencies, remaining scope and commitments; work versus personal classification, disclosure eligibility for text/title/URL, conflicts, and coverage gaps. |
+
+Use readable inline link text for every material GitHub artifact:
+`[owner/repo#NUMBER - verified descriptive title](CANONICAL_SOURCE_URL)`.
+Use the same convention for parent and implementation links, not bare IDs,
+anonymous reference numbers, or footnotes as the only identification. Include
+the artifact type where issue/PR distinction is not otherwise clear. A
+non-GitHub decision uses a verified descriptive heading and permalink; include
+its related issue/PR only when verified. Never fabricate a title, relation,
+number, or URL to complete the shape. Apply the disclosure pass to labels
+and destinations: preserve allowed identifiers and safe title portions, but
+omit restricted portions and say what non-sensitive detail is unavailable.
+
+After paginated discovery, enumerate the materially completed issues and
+merged PRs in the searched scope before selecting prose topics. Reconcile
+each with verified personal contribution and closure/merge evidence. Also
+retain material in-progress, review-only, closed-unmerged/cancelled, and
+exploration contributions. Material work changes behavior, scope, a decision,
+delivery state, or an evidenced dependency; do not drop it merely because it
+does not fit a preferred theme count. Exclude generated reporting artifacts,
+routine noise and artifacts with no verified personal contribution, not real
+deliverables in smaller projects.
+
+Map every eligible record to the visible project inventory. Combine a
+verified issue/implementation PR pair without losing either ID/title or its
+distinct milestones; similar titles alone do not establish that pairing.
+Mark a PR with no verified issue after successful relation lookup **No linked
+issue found**. If lookup was denied, truncated, or unavailable, say **Issue
+linkage unknown** with that gap instead of asserting absence.
+Compare the map and inventory before writing the overview: no material
+completed item may disappear into a broad paragraph. If discovery is
+partial, visibly label the inventory **within searched scope**, specify the
+missing coverage, and never call it exhaustive.
+
+Expand sources only to resolve specific missing titles, project identity,
+parent/closing relations, personal role, closure/deployment or cutoff state,
+or material analytical evidence. Read governing context for those exact
+artifacts, not an unbounded new search. If evidence remains unavailable,
+retain the safely identifiable item with a local gap; do not fill it with
+generic claims or silently discard it.
+
 ## Copilot sessions
 
 Use `session_store_sql` to discover **all accessible personal session
@@ -209,6 +268,26 @@ For candidate PRs, use paginated REST endpoints
 needed. An embedded `gh pr view --json reviews,comments` collection is not
 an exhaustive event history. Pending/draft reviews with no submission
 timestamp are not submitted reviews.
+
+Fetch each material issue/PR's canonical repo, number, title and URL from
+the source. When a current title could imply later scope, inspect dated title
+rename history for that exact artifact. Use the verified title at the period
+cutoff in its ID/title label; label meaningful later renames separately with
+dates. If history is unavailable, identify the title as current with period
+title unverified and ground the actual change in dated evidence, not the
+title. Never infer historical scope or completed behavior from a later name.
+Apply the same disclosure rules to historical and current titles.
+Resolve parent/sub-issue and closing/implementation relationships
+through supported structured connections and explicit source text/timeline
+evidence, paging each connection. A label, shared title, milestone name or
+mere mention is not proof that a PR closes a ticket or completes an epic.
+Read closure reason and relevant close/reopen/merge events to establish state
+at the period cutoff, not just today's `state`. An issue closed as duplicate
+or not planned, or a PR closed without merge, is not delivered work. Even
+`completed` closure needs substantive evidence of what was completed and the
+user's role; it does not imply deployment. Keep an unknown historical state
+unknown when the timeline cannot establish it. Verify deployment separately,
+including date, environment/cohort and linkage to the actual change.
 
 Use `gh api --paginate` for REST and GraphQL `pageInfo` cursors for
 connections. Paginate nested connections independently; an outer page does

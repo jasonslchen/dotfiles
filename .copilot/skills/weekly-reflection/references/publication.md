@@ -37,6 +37,39 @@ full weeks plus labeled clipped boundary intervals, not a future completed
 week. Publication must be authorized for the range; it does not expand the
 recurring baseline or authorize future six-month rescans.
 
+## Report acceptance: preview and publication
+
+Apply the [report template](../templates/report.md) before either preview or
+persistence. Read it without opening links: the user must be able to identify
+each material project/repo, named issue/PR/decision, their own concrete action,
+dated milestone and cutoff state, before/after behavior and observed versus
+expected result. Reconcile the visible inventory with discovery's evidence
+map so all eligible material completed issues/merged PRs in the searched
+scope remain visible, including projects beyond five. Keep other material
+contributions separated by state; do not count a review, abandoned PR, open
+epic or later merge as this period's personal delivery.
+
+An authorized aggregate starts with a project-by-project work/completion
+map with readable linked IDs/titles, dates, changes, roles and relationships,
+then cross-week progression/decisions/results, then reflection results/how,
+learning/growth and supported priorities. Deduplicate work while retaining
+milestones and range-end versus subsequent state. A theme-only summary or
+anonymous footnote list does not satisfy this contract.
+
+Required missing evidence triggers targeted source expansion or a visible
+local gap, not fabricated titles/tickets/metrics or generic filler. Partial
+discovery must label the inventory **within searched scope**, not exhaustive.
+Keep routine events compact; no word/theme ceiling may hide material work.
+Put repeated general caveats in shared methodology, but keep state/impact
+limitations next to the affected claim.
+
+Run the disclosure pass over labels, links and concrete details too. Keep
+permitted project names, faithful verified title abbreviations and useful
+nonconfidential technical facts. Redact actually restricted content, leaving
+a safe source pointer and specific non-sensitive omission when permitted.
+If no safe identification is possible, disclose the gap without the unsafe
+identifier or claim; readability never overrides access/disclosure policy.
+
 ## Destination gate: before any upload
 
 Publication requires actual user authorization for the exact destination
@@ -142,16 +175,64 @@ the full installer would back it up there, potentially registering a duplicate.
 Check both source-copy and link destinations for existing paths or dangling
 symlinks; never overwrite or replace either without user approval.
 
-Create the versioned copy directory exclusively (fail if it already exists),
-then copy only `SKILL.md`, `references/`, and `templates/`. Create the user-skill
-symlink only after verifying the copy; link creation must fail on an existing
-destination rather than replacing it. Verify copied
-content matches the reviewed source, required relative links resolve, and
-frontmatter has `name: weekly-reflection` and `user-invocable: true`. Do not
-copy other skills, user config, reports, or repository metadata.
+For every versioned install or upgrade, use an existing reviewed full commit
+whose skill subtree matches the intended content, not uncommitted worktree
+bytes. If authorized skill edits need a new commit, stage only the exact
+changed files under `.copilot/skills/weekly-reflection/`, inspect the entire
+staged path list and diff, and include only those files in the commit.
+Preserve unrelated staged changes: use an isolated staging context or stop
+if they cannot be excluded from this commit without alteration.
+Never use `git add .`, `git add -A` or `git commit -a`. If safe scoped
+isolation is unavailable, stop. Installation alone does not authorize source
+edits, commits or pushes.
+
+For an initial install, create the full-commit-named copy directory
+exclusively (fail if it already exists), then copy only that commit's
+`SKILL.md`, `references/`, and `templates/`. Hash-compare every copied file
+against that commit and verify the exact file set. Create the user-skill
+symlink only after verifying the copy; creation must fail on an existing
+destination rather than replacing it. Verify required relative links resolve,
+and frontmatter has `name: weekly-reflection` and `user-invocable: true`.
+Do not copy other skills, user config, reports, or repository metadata.
 If interrupted, report the exact partially installed directory; do not
 pretend recognition succeeded or replace it on a later retry without
 checking ownership/content.
+
+### Explicitly authorized targeted upgrade
+
+An existing installation is not implicit permission to replace it. When the
+user explicitly requests an upgrade of this skill:
+
+1. Inspect the exact `~/.copilot/skills/weekly-reflection` path with `lstat`
+   and `readlink`, including dangling links, and read/verify its target's
+   content. Record the owned target, symlink identity and file hashes before
+   edits. If it is a real directory, an unrelated target, or its ownership
+   cannot be established, stop rather than replace it.
+2. Select the reviewed commit under the scoped rules above. Create a new, exclusive
+   `.../skill-sources/weekly-reflection/COMMIT` directory named for that
+   exact full commit, not a mutable branch or disposable worktree. Copy only
+   this skill's committed `SKILL.md`, `references/` and `templates/`.
+   Preserve the previous version unchanged for rollback; do not reuse it.
+3. Verify the new file set, relative links and frontmatter. Hash-compare
+   every copied file with the reviewed commit, not only `SKILL.md`. A
+   mismatch or pre-existing version directory blocks activation until
+   ownership/content is resolved; never silently overwrite it.
+4. Stage one replacement symlink outside the skill-loading tree on the same
+   filesystem. Immediately before replacing the live link, re-check that
+   its identity, exact target and old target contents still match the
+   recorded installation. If anything changed, stop: the earlier approval
+   does not authorize overwriting an unrelated concurrent user change.
+   Atomically replace only that verified symlink using rename semantics on
+   the link path itself, never an operation that follows it into its target
+   directory. Do not remove other skills or run the whole installer.
+   Clean up only this attempt's staged link.
+5. Read back the live target and hash-verify all installed files against the
+   commit again. If verification fails, restore the recorded previous target
+   only if the live symlink still exactly matches this attempt's replacement;
+   a concurrent change blocks rollback rather than being overwritten.
+   Preserve both version directories and report the failed stage or unresolved
+   recovery. Report commit/version path and verification.
+   Installation does not merge a PR or imply approval to merge it.
 
 Use the host's supported skill refresh/list mechanism to verify recognition
 when available; otherwise start a new Copilot session and inspect its skill

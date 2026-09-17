@@ -1,9 +1,10 @@
 ---
 name: weekly-reflection
 description: >-
-    Write an evidence-linked weekly reflection on what the user did, their
-    personal role, delivery state, and observed versus expected impact across
-    GitHub, Slack, and Copilot sessions. Supports manual previews and authorized
+    Write a project-first weekly work dossier with identifiable issue/PR titles,
+    precise personal contributions, dated delivery states, close analysis,
+    and observed versus expected impact across GitHub, Slack, and Copilot
+    sessions. Supports manual previews and authorized
     unattended publication to an exact private repository, stable calendar
     periods, idempotent reruns, and missing-period catch-up. Use for
     "/weekly-reflection", "reflect on my week", or "weekly personal impact
@@ -13,7 +14,10 @@ user-invocable: true
 
 # Weekly Reflection
 
-Produce a readable personal work-and-impact report, not an activity dump,
+Produce a recognizable project-first work dossier and close analysis of
+what the user changed, completed, reviewed, or left unfinished. A short
+overview may orient the reader but cannot replace the substance.
+This is a personal work-and-impact report, not an activity dump,
 Howie status update, or Workday's interactive three-question process. Run
 autonomously with the authorized inputs; never invent missing authorization.
 Default to **read-only preview and public Slack only**.
@@ -112,11 +116,21 @@ permits its upload. Recurring catch-up remains governed by `catch_up_from`;
 do not infer a recurring historical scan from a one-time backfill.
 If `aggregate=true`, write or preview
 `summaries/START_UTC_BASIC--END_UTC_BASIC.md` for the exact requested range.
+Set `period_kind: summary` for this output, not `custom` or `full`.
 Use sanitized period reports as organization aids, verify their source links,
 deduplicate underlying accomplishments across weeks, and retain dated
-progression without counting the same delivery repeatedly. Map supported
-themes into first-person results/how and evidenced learning, preserving
-partial coverage and attribution; invent no goals, challenges, or metrics.
+progression without counting the same delivery repeatedly. Start with a
+project-by-project work/completion map: recognizable project/feature and repo,
+readable linked issue/PR IDs **and verified titles**, dates, personal role,
+what changed, verified parent/implementation links and range-end state.
+Follow it with cross-week progression, decisions, results and remaining
+scope, then `/reflection`-ready results/how, learning/growth and
+evidence-supported priorities. Name the underlying projects and artifacts
+in the prose, not only footnotes. Distinguish newly completed work from
+repeatedly in-progress items and evidence direction changes, rework and
+dependencies; do not infer causes from silence, judge performance, or
+estimate time allocation. Preserve partial coverage, human/AI attribution
+and observed versus expected impact; invent no goals, challenges or metrics.
 The aggregate is synthesis, not additional activity evidence next week.
 
 ### Missing periods and reruns
@@ -150,10 +164,17 @@ missing connector, or denied query is never equivalent to "no activity".
 Do not research arbitrary email, calendars, files, or other sources under
 "and more"; only use available connectors explicitly authorized for the task.
 
-Keep a small working evidence map in memory where possible:
-canonical artifact/event ID, timestamp, source link, user's exact role,
-delivery state, work/personal classification, observed/expected impact,
-disclosure eligibility, and conflicts. If persistence is necessary, use only
+Build [discovery's required evidence map](references/discovery.md#required-evidence-map-and-inventory):
+project/repo, artifact type/number/verified title/URL, parent/closing and
+implementation relations, exact actor/event date and cutoff state, human/AI
+roles, concrete change and outcome evidence, classification, disclosure
+eligibility and conflicts. Missing or restricted fields need an explicit
+gap, not invented values. Enumerate all material completed issues and merged
+PRs found within searched scope before synthesis, then reconcile the map
+against the visible inventory, including other material contribution states.
+Do not select a few themes and lose delivered items in the remaining projects.
+
+Keep the map small and in memory where possible. If persistence is necessary, use only
 a user-owned private session-state location outside all repositories, with
 owner-only directory/file permissions (0700/0600), never shared `/tmp`.
 Avoid copying transcripts even into scratch; uncertain material stays local
@@ -176,6 +197,11 @@ the primary source again before claiming new progress.
   assignment, opening an issue, or an agent saying "done" is not delivery.
   Separate drafted, implemented, reviewed, approved, merged, deployed,
   rolled out, and confirmed outcome; never infer later stages from earlier.
+  Inspect closure reason and close/reopen history: issue closure is not
+  automatically success; closed-unmerged, duplicate, not-planned or
+  abandoned work is not delivered. A merged component PR does not complete
+  its parent epic. Verify parent/closing relations and implementation links;
+  a mention or matching title does not establish them.
 - Date-filter the underlying review/comment/commit/decision event, not an
   artifact's current `updatedAt` or eventual merge date. Distinguish work
   performed in the window from older context and later follow-through.
@@ -192,7 +218,9 @@ the primary source again before claiming new progress.
   or numbers. Omit unsupported impact or say it is not yet measured.
 - Resolve conflicting current states with authoritative, timestamped
   sources. A newer chat message does not override a formal decision by
-  default. Preserve uncertainty and deployment environment/cohort.
+  default. Reconstruct state at the exclusive period cutoff from dated
+  events; if unavailable, mark it unknown rather than use today's state.
+  Preserve uncertainty and verified deployment environment/cohort.
 
 Every material claim needs a supporting link, including meaningful reviews,
 collaboration/unblocking, decisions/investigations, AI leverage, learning,
@@ -202,38 +230,87 @@ claim or clearly mark it as omitted/unverified; never invent anonymous proof.
 
 ## 4. Write and sanitize
 
-Use the [template](templates/report.md). Aim for 600-1000 words, fewer when
-evidence warrants less; this is guidance, not a cap that removes substantive
-reflection evidence. Organize around 3-5 supported impact themes, not
-sources or chronology. Do not pad a sparse week. Separate work from personal
-projects where relevant, and delivered work from in-progress efforts.
-For each significant accomplishment retain the problem/stakes, exact
-personal role versus team attribution, concrete safe actions and decisions/
-tradeoffs, dated result/delivery state, observed outcome with sourced
-measurements/baseline versus expected benefit, and direct source links.
-Preserve useful nonconfidential technical specifics, not merely PR counts
-or generic praise. Add collaboration/learning when evidenced.
+Use the [template](templates/report.md) as an output contract:
+
+1. **Visible project work inventory first.** Group by recognizable human
+   project/feature name and exact repo, separating employer work from
+   personal projects. For a decision with no verified repo, keep its verified
+   project or safe source heading and label **No repository verified**;
+   never fabricate repo attribution or drop the decision.
+   For every material issue, PR or decision, show a
+   canonical ID **and verified descriptive title inline as link text**,
+   artifact type, precise personal contribution, actual dated event and
+   period-end state, concrete change, and verified parent ticket/epic and
+   implementation links with readable ID/title labels, parent cutoff state
+   and sourced remaining scope. Non-ticket decisions
+   use their verified heading/permalink; never invent a ticket.
+   Use **No linked issue found** only after successful relation lookup;
+   use **Issue linkage unknown** for unavailable/incomplete lookup.
+   Use the verified period title, checking meaningful later renames against
+   dated title history. Label later renames separately; if only the current
+   title is known, label it current and the period title unverified. Never
+   imply historical scope or completion from a later title.
+2. **Separate contribution and delivery states.** Show completed, merged and
+   deployed milestones distinctly from in-progress, review-only,
+   closed-unmerged/cancelled and exploration work. A review-only contribution
+   stays review-only even when someone else merges the PR. Give the user's
+   action and the artifact's state separately. Preserve merged component/open
+   parent scope, deployment environment and dated post-period context without
+   crediting later delivery to this week.
+3. **Concrete project drill-downs.** For material workstreams, name the
+   project/feature and linked issue ID/title (PR if no issue), specific
+   problem and prior behavior, exact action/behavior change and safe
+   component names. Explain the user's design, implementation, review or
+   coordination choices versus others/AI, dated milestone sequence,
+   closure/deployment evidence and remaining scope. Include observed impact
+   with baseline/units/source when available, separately labeled expected
+   benefit, and sourced blockers, tradeoffs, rework, dependencies and next
+   steps. An unknown measurement is not an invitation to invent one.
+
+Keep routine events compact and combine verified related artifacts without
+losing identities or milestones; do not impose a giant form per comment.
+There is **no arbitrary project, theme or word cap**: material work in more
+than five projects must remain visible. Do not pad sparse evidence.
+Retain proper project identifiers and useful nonconfidential technical terms,
+not vague substitutes such as "integration", "policy", "a service" or
+"capacity" without identifying the actual work. PR counts are not business
+outcomes, and generic praise is not analysis.
 
 Suggest next steps only from existing evidenced commitments, not new
-promises. Include a few reusable formal-reflection bullets grounded in the
-same evidence. Keep a compact coverage table showing the window/zone,
+promises. Include reusable formal-reflection results/how and evidenced
+learning/growth grounded in named projects and linked ID/title artifacts.
+Keep shared methodological disclaimers once in Sources and methodology;
+retain local caveats when material to an item's state, role or impact.
+Keep a compact coverage table showing the window/zone,
 accessed, unavailable, partial/truncated/excluded sources and material gaps.
-No matches means only that the completed queries found no matches.
+Label the visible inventory **within searched scope**, particularly when
+pagination is incomplete; never claim exhaustive coverage from a sample.
+No matches means only that the completed queries found no matches. Before
+release, reconcile material items against the evidence map and read the
+report without opening links: can the user identify the projects and exact
+tasks completed/open/abandoned, what they changed, before/after behavior,
+dates and state, and evidence versus expected benefit?
 
 Before presenting or saving, apply a disclosure pass to prose, titles, URLs,
 metadata, filenames, index entries, and commit messages. Even a private repo
 must not receive raw transcripts, secrets/credentials, proprietary code,
 confidential business/customer/security details, or HR, medical, or personal
-third-party data. Summarize safe high-level personal work/impact only.
+third-party data. Preserve safe project identifiers, verified titles,
+nonconfidential implementation facts and concrete personal work/impact.
+Do not blanket-anonymize material merely because its source is private;
+source access and disclosure restrictions still apply separately.
 Company names are not natural-person PII, but use a customer company name
 only where that relationship is publicly documented and safe to disclose.
 A nonpublic customer relationship remains confidential even if the company's
 name is public; never include customer PII.
 Link permitted sources without copying sensitive text or query parameters.
 Private-source links also require disclosure authorization; if the URL or
-label itself reveals sensitive information, omit it. Quarantine uncertain
-material locally until cleanup and note a generic omission without revealing
-its contents. Preserve the safe substance of the achievement and, when
+label itself reveals sensitive information, omit the restricted portion or
+the entire link when no safe form exists. Use a faithful safe title
+abbreviation, never a made-up title. Quarantine uncertain material locally
+until cleanup and note the specific non-sensitive omission (for example,
+restricted reproduction details omitted) without revealing its contents.
+Preserve the safe substance of the achievement and, when
 permitted, a non-sensitive follow-up pointer to its source for later
 reflection writing instead of deleting all useful detail.
 Read permission is not redistribution permission; private visibility alone
