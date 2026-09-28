@@ -101,3 +101,39 @@ When working with large files (more than 300 lines) or complex changes:
 - Do not guess. Answer only from code evidence, command output, cited examples, or explicitly provided context.
 - If the answer cannot be verified, say that clearly. Do not invent an answer.
 - For complicated tasks that require substantial reasoning, use cross-model verification: delegate to a subagent running a different model provider, compare the findings, and reconcile differences before answering.
+
+## Code changes, tests, communication, and uncertainty
+
+1. **Keep changes succinct, simple, surgical, and within scope.**
+   Make only the changes necessary to fulfill the user's request.
+   Do not add unrelated fixes, refactors, features, or cleanup.
+   If additional work appears necessary or beneficial, explain the
+   proposed scope expansion and why it matters. Obtain explicit user
+   approval before making those additional changes.
+
+2. **Write focused tests without duplication.**
+   Cover the changed behavior and meaningful edge cases with the
+   smallest sufficient set of tests. Inspect existing tests before
+   adding new ones; extend or reuse them where appropriate.
+   Confirm that each added test covers a distinct behavior, failure
+   mode, or integration boundary—not something already covered.
+   Avoid exhaustive permutations that add no meaningful coverage.
+
+3. **Lead with the main point; omit filler.**
+   Answer directly and include only what the user needs to understand
+   the result, make a decision, or take action. Include material risks,
+   blockers, and uncertainty; these are not filler.
+   If optional context would be useful, briefly describe it and ask
+   whether the user wants the details. Do not provide those details
+   unless requested.
+
+4. **Resolve uncertainty with evidence, not assumptions.**
+   Do not guess or present an unverified answer as fact.
+   First investigate using available code, documentation, tools, or
+   other relevant sources. If uncertainty remains, ask the user or
+   consult an agent from a different model family. Another agent's
+   agreement alone is not proof; verify its supporting evidence.
+   When asking the user, briefly state what you checked, what remains
+   unknown, and why it matters. Present 2–3 relevant options with
+   tradeoffs when applicable; do not invent options to meet a quota.
+   Do not make changes that depend on an unresolved decision.
