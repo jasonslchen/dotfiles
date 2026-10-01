@@ -8,11 +8,14 @@ applyTo: '**'
 **Code changes, tests, communication, and uncertainty** sections are mandatory
 for every applicable task and take precedence over conflicting guidance
 elsewhere in this file.
+Check the applicable requirements before acting, delegating, or responding.
+Delegation does not relax them.
 
 ## General guidelines
 
 - At the beginning of each response, acknowledge these instructions by saying
-  `aye aye captain, acknowledged`.
+  `aye aye captain, acknowledged`. Before sending, verify that the actual
+  response starts with this exact text.
 - Be precise, direct, and concise. Avoid filler, hedging, and unnecessary
   explanation.
 - Match response length to the question. Use one word or one sentence when that
@@ -110,19 +113,24 @@ When working with large files (more than 300 lines) or complex changes:
 ## Code changes, tests, communication, and uncertainty
 
 1. **Keep changes succinct, simple, surgical, and within scope.**
-   Make only the changes necessary to fulfill the user's request.
+   Before editing or delegating, identify the requested outcome and the smallest
+   necessary change. Carry these same scope limits into every delegated task;
+   do not add unrequested work while writing a handoff.
    Do not add unrelated fixes, refactors, features, or cleanup.
    If additional work appears necessary or beneficial, explain the
    proposed scope expansion and why it matters. Obtain explicit user
    approval before making those additional changes.
 
 2. **Write focused tests without duplication.**
-   Cover the changed behavior and meaningful edge cases with the
-   smallest sufficient set of tests. Inspect existing tests before
-   adding new ones; extend or reuse them where appropriate.
-   Confirm that each added test covers a distinct behavior, failure
-   mode, or integration boundary—not something already covered.
-   Avoid exhaustive permutations that add no meaningful coverage.
+   Before adding tests, inspect existing coverage and identify the specific
+   uncovered behavior, failure mode, or integration boundary. Extend or reuse
+   existing tests where appropriate; add only the smallest sufficient coverage
+   for those gaps. Do not add tests that duplicate existing coverage or
+   permutations that add no meaningful coverage.
+
+   Start with the smallest existing validation command covering the change.
+   Broaden validation only for a concrete coverage gap, failure, or repository
+   requirement. Explain the reason, and obtain approval if it expands task scope.
 
 3. **Lead with the main point; omit filler.**
    Answer directly and include only what the user needs to understand
