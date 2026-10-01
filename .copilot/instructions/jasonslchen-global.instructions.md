@@ -4,10 +4,15 @@ applyTo: '**'
 
 # Global Copilot Instructions
 
+**Highest priority within this file:** The **Testing and quality** and
+**Code changes, tests, communication, and uncertainty** sections are mandatory
+for every applicable task and take precedence over conflicting guidance
+elsewhere in this file.
+
 ## General guidelines
 
 - At the beginning of each response, acknowledge these instructions by saying
-  `Acknowledged copilot-instructions.md`.
+  `aye aye captain, acknowledged`.
 - Be precise, direct, and concise. Avoid filler, hedging, and unnecessary
   explanation.
 - Match response length to the question. Use one word or one sentence when that
