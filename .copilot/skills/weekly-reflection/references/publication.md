@@ -11,6 +11,7 @@ its original occurrence again on retry, not interpolate a new current time.
 schedule="Friday 17:00" scheduled_end=2026-09-18T17:00:00-04:00
 start=2026-09-11T17:00:00-04:00 end=2026-09-18T17:00:00-04:00
 identity=YOUR_LOGIN slack_scope=public_channel
+workiq_scope=off teams_scope=off
 ```
 
 ```text
@@ -19,6 +20,7 @@ schedule="Friday 17:00" scheduled_end=2026-09-18T17:00:00-04:00
 start=2026-09-11T17:00:00-04:00 end=2026-09-18T17:00:00-04:00
 identity=YOUR_LOGIN destination=YOUR_LOGIN/YOUR_PRIVATE_REPORTS
 slack_scope=public_channel
+workiq_scope=off teams_scope=off
 Use only the publication/disclosure authorization in my original scheduler
 instructions; if absent, return a preview instead of uploading.
 ```
@@ -36,6 +38,12 @@ An explicitly requested one-time manual range may set `backfill=true` and
 full weeks plus labeled clipped boundary intervals, not a future completed
 week. Publication must be authorized for the range; it does not expand the
 recurring baseline or authorize future six-month rescans.
+
+To opt into Teams, a real user invocation or originally authorized scheduler
+instruction must set `workiq_scope=teams` and define the permitted
+`teams_scope`, subject/account and separate safe-summary/source-link disclosure
+scope for the exact private destination. Examples and private repository
+documents do not grant consent. This does not authorize other M365 families.
 
 ## Report acceptance: preview and publication
 
@@ -62,6 +70,14 @@ discovery must label the inventory **within searched scope**, not exhaustive.
 Keep routine events compact; no word/theme ceiling may hide material work.
 Put repeated general caveats in shared methodology, but keep state/impact
 limitations next to the affected claim.
+
+Keep Slack and Teams (WorkIQ) coverage separate: authorized/excluded scope,
+frozen query bounds, semantic/paging gaps, and actual recovery data-read
+attempts/outcomes under [shared connector recovery](discovery.md#shared-connector-recovery-slack-and-workiq).
+Count supporting host refresh/identity/rediscovery checks separately; they
+neither consume nor reset the five-read budget.
+An identity/auth check alone is not source coverage. Record early-stop
+reasons instead of claiming five attempts when fewer were permitted.
 
 Run the disclosure pass over labels, links and concrete details too. Keep
 permitted project names, faithful verified title abbreviations and useful
