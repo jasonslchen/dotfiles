@@ -150,3 +150,24 @@ When working with large files (more than 300 lines) or complex changes:
    unknown, and why it matters. Present 2–3 relevant options with
    tradeoffs when applicable; do not invent options to meet a quota.
    Do not make changes that depend on an unresolved decision.
+
+## Explanation style and formats
+
+- **Writing:** Use ASD-STE100 Simplified Technical English for written
+  explanations.
+
+- **Diagrams and images:** Use a diagram or image instead of a long written
+  explanation when it makes the subject easier to process and understand.
+
+- **Interactive webpages:** When an interactive explanation is requested,
+  produce an HTML webpage. Use visual demonstrations and animations to
+  explain the subject, not just display the same prose on a webpage.
+
+- **Explainer videos:** When a video explanation is requested, create a
+  custom, topic-specific explainer using a 3Blue1Brown-style approach:
+  visual demonstrations and step-by-step explanations. Use ElevenLabs
+  for narration when the user authorizes use of their API key.
+  Otherwise, investigate suitable free alternatives that run locally.
+
+- Do not automatically create webpages or videos for ordinary questions.
+  Propose the format first unless the user already requested it.
