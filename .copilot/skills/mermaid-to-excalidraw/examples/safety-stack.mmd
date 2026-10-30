@@ -1,0 +1,13 @@
+flowchart LR
+    registry["Model registry"] -->|Model safety posture| inference["Inference API: request-time gating"]
+    inference -->|Inference-time detectors| detectors["AACS / M4 / Safeberry / ... "]
+    detectors -->|Scores| inference
+    inference -->|Detector results and verdicts| hydro["Hydro"]
+    inference -->|Evidence| abs[("GitHub ABS")]
+    abs -->|Read-only access| aegis["Microsoft AeGIS"]
+    aegis -->|Inbound sharing| delta[("GitHub Delta storage")]
+    delta --> intake["Spam-Slam via Kusto"]
+    intake -->|Signals| hydro
+    hydro --> hamzo["Hamzo: automated account-response rules"]
+    registry -->|Model safety posture| hamzo
+    hamzo --> feedback["Outcomes"]
