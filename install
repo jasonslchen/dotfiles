@@ -1,8 +1,22 @@
 #!/bin/zsh
 
+# Use this script's source, not the caller's directory or an ephemeral worktree.
+dotfiles_dir="${0:A:h}"
+if [[ -e "$dotfiles_dir/.git" ]]; then
+    dotfiles_git_dir=$(git -C "$dotfiles_dir" rev-parse --absolute-git-dir) || exit 1
+    dotfiles_common_dir=$(git -C "$dotfiles_dir" rev-parse --git-common-dir) || exit 1
+    [[ "$dotfiles_common_dir" == /* ]] ||
+        dotfiles_common_dir="$dotfiles_dir/$dotfiles_common_dir"
+    if [[ "${dotfiles_git_dir:A}" != "${dotfiles_common_dir:A}" ]]; then
+        print -u2 -- "Refusing to install from a linked worktree: $dotfiles_dir"
+        print -u2 -- "Run the installer from a persistent standalone clone."
+        exit 1
+    fi
+fi
+
 zshrc() {
     echo "Linking zshrc"
-    cat .zshrc > $HOME/.zshrc
+    cat "$dotfiles_dir/.zshrc" > "$HOME/.zshrc"
 }
 
 # change time zone to match LA local time (Linux only)
@@ -20,10 +34,10 @@ if [[ "$SHELL" != "$(which zsh)" ]]; then
 fi
 
 function link_files() {
-  if [[ ! $(pwd) -ef $HOME ]]; then
+  if [[ ! "$dotfiles_dir" -ef "$HOME" ]]; then
     # Git link
     rm -f ~/.gitconfig
-    ln -s $(pwd)/.gitconfig ~/.gitconfig
+    ln -s "$dotfiles_dir/.gitconfig" ~/.gitconfig
   fi
 }
 
@@ -72,8 +86,8 @@ link_skill_dir() {
 }
 
 echo "Linking agent skills"
-link_skill_dir "$(pwd)/.copilot/skills" "$HOME/.copilot/skills"
-link_skill_dir "$(pwd)/.claude/skills"  "$HOME/.claude/skills"
+link_skill_dir "$dotfiles_dir/.copilot/skills" "$HOME/.copilot/skills"
+link_skill_dir "$dotfiles_dir/.claude/skills"  "$HOME/.claude/skills"
 echo "Finish linking agent skills"
 
 # Copy our Copilot instruction files additively into the device's instructions
@@ -116,7 +130,7 @@ if [[ -L "$old_global" && "$(readlink "$old_global")" == *"/dotfiles/.copilot/co
 fi
 
 echo "Adding agent instructions"
-copy_instructions "$(pwd)/.copilot/instructions" "$HOME/.copilot/instructions"
+copy_instructions "$dotfiles_dir/.copilot/instructions" "$HOME/.copilot/instructions"
 echo "Finish adding agent instructions"
 
 # make directly highlighting readable - needs to be after zshrc line

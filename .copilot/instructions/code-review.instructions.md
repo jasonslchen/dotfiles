@@ -11,21 +11,23 @@ user asks for a code review or security review.
 ## 1. Cross-model, blank-slate review
 
 - **Run the review on a different model class than yourself.** Delegate the review to a
-  subagent (via the `task` tool) using a model from a *different* provider/class than
-  the one currently driving the session. The point is an independent second opinion, not
-  a self-review.
-  - If you are a **Claude** model, run the review on a **GPT** model
-    (e.g. `gpt-5.5`, or the highest available GPT).
-  - If you are a **GPT** model, run the review on a **Claude** model
-    (e.g. `claude-opus-4.8`, or the highest available Claude).
-  - If neither applies, pick any high-capability model from a different class than your
-    own (e.g. a Gemini model).
-- **Maximize reasoning and context.** Launch that review subagent with high reasoning
-  effort (`reasoning_effort: "high"` or `xhigh`) and the long-context tier
-  (`context_tier: "long_context"`) so it can hold the full diff plus surrounding code.
-- **Fresh slate.** Instruct the review subagent to ignore any prior conclusions,
-  summaries, or assumptions from this session and review the change from scratch by
-  reading the actual code — not trusting earlier descriptions of it.
+  subagent using an exact model ID from the delegation tool's currently advertised
+  available models, from a *different* provider/class than the current session.
+  The point is an independent second opinion, not a self-review.
+  - If you are a **Claude** model, select an available **GPT** model.
+  - If you are a **GPT** model, select an available **Claude** model.
+  - Otherwise, select an available high-capability model from a different class.
+  - Do not invent model IDs. If no suitable tool or model is available, state
+    the limitation; do not claim independent cross-model verification.
+- **Use supported reasoning and context options.** Select high reasoning effort
+  and a long-context tier when the tool advertises support for the selected model.
+  Use only advertised option values. If either is unavailable, use supported
+  settings and disclose the constraint.
+- **Fresh slate.** Instruct the reviewer to preserve verified user requirements
+  and decisions as scope constraints, including explicit user rejections. Review
+  the change from scratch by reading the actual code. Treat earlier Copilot
+  decisions, rationale, summaries, and assumptions as claims to verify against
+  that code, not review conclusions to accept.
 - **No recursion.** The review subagent performs the review itself and must not further
   delegate to another review subagent.
 
