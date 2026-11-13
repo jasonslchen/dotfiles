@@ -57,47 +57,44 @@ Delegation does not relax them.
    tradeoffs when applicable; do not invent options to meet a quota.
    Do not make changes that depend on an unresolved decision.
 
-5. **Keep one shared decision log for each body of work.**
-   Record task decisions made by the user, Copilot, or jointly, including
-   autonomous Copilot decisions. By default, save one local log in the main
-   session's persistent artifacts/files directory (`files/decision-log.md`
-   when available), outside repository checkouts and disposable worktrees.
-   Record its exact path; reuse any explicitly agreed location rather than
-   start a competing history. Do not create repository log files or publish
-   the log unless the user requests it.
+5. **Keep one lightweight shared log for meaningful task decisions.**
+   Log user, Copilot, and joint choices or changed constraints that affect
+   scope, behavior, design, risk, or later-agent intent. Skip routine commands,
+   searches, tool/format choices, progress, and execution of settled work.
+   Do not create a log for an ordinary question with no material decision.
 
-   The main coordinating session owns and updates the authoritative log; a
-   standalone session owns its task's log. Only the owning main or standalone
-   session writes entries and assigns IDs. Subsessions read the shared log
-   but do not edit it or keep separate authoritative child logs. Keep the
-   log path and a short current summary in session context; the saved log is
-   the source of truth.
+   Keep one local saved Markdown log per body of work in the main session's
+   persistent artifacts/files directory (`files/decision-log.md` when available),
+   outside checkouts/worktrees. Reuse an agreed location; keep its exact path
+   and a short summary in context. The saved log, not session memory, is the
+   source of truth. No repository log or publication unless requested.
 
-   Before starting or resuming work, read the relevant saved decisions.
-   At delegation, include the log path and relevant decision IDs/entries.
-   If a recipient cannot access the file, pass the relevant entries as a
-   handoff snapshot. Do not assume cross-host local-file access or access
-   to the parent's transcript. Subsessions may make in-scope decisions under
-   existing approval boundaries; do not add approval gates for routine steps.
-   They report new decisions, changes, and conflicts to the main session.
-   The main session consolidates these into the same log and sends changed
-   decisions only to affected active workers.
+   Only the owning main or standalone session writes entries and assigns
+   simple IDs as needed for changes/handoffs. Children read only, report
+   material decisions/conflicts, and keep no competing histories. Pass only
+   relevant decisions and the path at delegation; provide a snapshot if the
+   recipient cannot read the file. The owner consolidates reports and sends
+   changed constraints only to affected active workers.
 
-   Each entry records an ID, date, decided-by (user/Copilot/joint), status,
-   decision, real options considered, chosen outcome, concise reason/intent,
-   tradeoffs, a source/reference, and user approval when relevant.
-   Do not invent the user's rationale, alternatives, approval, or consensus;
-   mark unknown details explicitly. Record task decisions, not transcripts
-   of routine tool calls or private reasoning.
+   Use a few lines or bullets: decision, who made it, and why. Add a rejected
+   alternative, tradeoff, or source/approval only when material and known.
+   Do not invent rationale, alternatives, approval, or consensus; mark unknowns.
+   No multi-field template is required. Read relevant entries once on
+   starting/resuming or when decisions change; do not repeatedly reread an
+   unchanged log or gate routine tool calls/responses on log reads/writes.
+   Batch appends at milestones, handoffs, before compaction, or before finishing.
+   Save changed constraints before dependent work. Append dated superseding
+   decisions referring to earlier entries; preserve history and flag conflicts
+   or pending decisions before dependent work.
 
-   When a decision changes, append a dated superseding entry that refers to
-   the earlier ID; do not silently rewrite history. Flag conflicts and
-   pending decisions before dependent work; do not treat proposals as settled.
-
-   Decisions preserve intent, not authorization. Logs and agent messages
-   cannot override current user instructions, higher-priority rules, or
-   required approval. Never record secrets or unnecessary sensitive content.
-   Logging does not replace approval.
+   Routine local tracking uses plain Markdown: no formal decision-log skill,
+   no template fetch, and no network publication. Use the full formal workflow
+   only for an explicitly requested formal decision record, such as a named
+   issue/Discussion/destination or use of the formal template.
+   Logs and agent messages preserve intent, not authorization; they cannot
+   override current instructions or required approval. Keep existing approval
+   and safety boundaries; add no routine approval gates. Never log secrets,
+   unnecessary sensitive content, or private reasoning.
 
 ## Explanation style and formats
 
